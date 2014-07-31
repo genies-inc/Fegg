@@ -8,13 +8,14 @@
  * 
  * @access public
  * @author Genies Inc.
- * @version 1.2.4
+ * @version 1.2.5
  * 
  * 2014.06.23 テンプレートのchecked, selectedのkeyに数値を指定できるように修正
  * 2014.07.17 include html タグ追加
  * 2014.07.30 assign タグ追加
  *            タグの前空白、後空白・改行の削除処理追加
  *            options タグが連続する際にうまく処理されないバグを修正
+ * 2014.07.31 メソッド名のミススペル修正 setDiscription → setDescription
  */
 class Application
 {
@@ -855,12 +856,12 @@ class Application
     
     
     /**
-     * メタタグ（Discription）を設定
-     * @param string $discription 
+     * メタタグ（Description）を設定
+     * @param string $description 
      */
-    function setDiscription($discription)
+    function setDescription($description)
     {
-        $this->_site['discription'] = $discription;
+        $this->_site['description'] = $description;
     }
     
 
@@ -949,7 +950,7 @@ class Application
     
     /**
      * メタタグ（Title）を設定
-     * @param string $discription 
+     * @param string $description 
      */
     function setTitle($title)
     {
