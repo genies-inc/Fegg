@@ -3,15 +3,18 @@
  * Applicationクラス
  * 
  * Webアプリケーションに必要な様々な処理を提供するクラス。
- * セッションに関連するメソッドを使用する場合、自動的にsession_start()がコールされる。
  * 
  * 関連ファイル： settings.php
  * 
  * @access public
- * @author Genies, Inc.
- * @version 1.2.2
+ * @author Genies Inc.
+ * @version 1.2.4
  * 
  * 2014.06.23 テンプレートのchecked, selectedのkeyに数値を指定できるように修正
+ * 2014.07.17 include html タグ追加
+ * 2014.07.30 assign タグ追加
+ *            タグの前空白、後空白・改行の削除処理追加
+ *            options タグが連続する際にうまく処理されないバグを修正
  */
 class Application
 {
@@ -226,7 +229,7 @@ class Application
             $compiledTemplate = file_get_contents($templateFile);
 
             // 継承処理
-            $pattern = '/\{\{ transclude [\'"]([^\'"]+)[\'"] \}\}(.*)$/s';
+            $pattern = '/ *\{\{ transclude [\'"]([^\'"]+)[\'"] \}\}(.*)\s*/s';
             if (preg_match($pattern, $compiledTemplate, $matches)) {
 
                 // コンポーネントの継承処理
@@ -244,9 +247,9 @@ class Application
                     $parentTemplate = file_get_contents($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.tpl');
                     
                     $tempPattern = array();
-                    if (preg_match_all('/\{\{\s*section\s+(\w+)\s*\}\}/', $parentTemplate, $parentParts)) {
+                    if (preg_match_all('/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/', $parentTemplate, $parentParts)) {
                         foreach ($parentParts[1] as $key => $value) {
-                            $tempPattern['/\{\{\s*end\s+section\s+(' . $value . ')\s*\}\}/'] = '<?php }} ?>';
+                            $tempPattern['/ *\{\{\s*end\s+section\s+(' . $value . ')\s*\}\}\s*/'] = '<?php }} ?>';
                         }
                         $compiledTemplate = preg_replace(array_keys($tempPattern), array_values($tempPattern), $compiledTemplate);
                     }
@@ -279,32 +282,34 @@ class Application
             $callback .= '} ';
             $function = create_function('$matches', $callback);
              
-            $compiledTemplate = preg_replace_callback('/\{\{\s*\$(.+)\s*\}\}/U', $function, $compiledTemplate);
+            $compiledTemplate = preg_replace_callback('/\{\{\s*\$(.+)\s*\}\}\s*/U', $function, $compiledTemplate);
             
             // 基本命令をPHPに変換
             $pattern = array(
-                '/\{\{\s*section\s+(\w+)\s*\}\}/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
-                '/\{\{\s*end section (\w+)\s*\}\}/i' => '<?php }} section_$1($assignedValue); ?>',
-                '/\{\{\s*head\s*\}\}/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->displayTemplate($value, $assignedValue); } } ?>', 
-                '/\{\{\s*include head\s+\'([\w\/]+)\'\s*\}\}/i' => '<?php if (isset($head)) { array_unshift($head, \'$1\'); } else { $head[] = \'$1\'; } ?>', 
-                '/\{\{\s*include\s+\'([\w\/]+)\'\s*\}\}/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate(\'$1\', $assignedValue); ?>', 
-                '/\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}/i' => '<?php if (isset($1) && $1) { ?>',
-                '/\{\{\s*if\s+([^\{]+)\s*\}\}/i' => '<?php if ($1) { ?>',
-                '/\{\{\s*else\s*if\s*([^\{]+)\s*\}\}/i' => '<?php } else if ($1) { ?>',
-                '/\{\{\s*else\s*\}\}/' => '<?php } else { ?>',
-                '/\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
-                '/\{\{\s*end\s*\}\}/i' => '<?php } ?>',
-                '/\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
-                '/\{\{\s*end foreach\s*\}\}/i' => '<?php $foreachIndex++; } ?>',
-                '/\{\{\s*hidden\s*\}\}/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>', 
-                '/\{\{\*.*\*\}\}/i' => '',
+                '/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
+                '/ *\{\{\s*end section (\w+)\s*\}\}\s*/i' => '<?php }} section_$1($assignedValue); ?>',
+                '/ *\{\{\s*head\s*\}\}\s*/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->displayTemplate($value, $assignedValue); } } ?>', 
+                '/ *\{\{\s*include\s+head\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php if (isset($head)) { array_unshift($head, \'$1\'); } else { $head[] = \'$1\'; } ?>', 
+                '/ *\{\{\s*include\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate(\'$1\', $assignedValue); ?>', 
+                '/ *\{\{\s*include\s+html\s+\'([^\s]+)\'\s*\}\}\s*/i' => '<?php include(FEGG_HTML_DIR . \'$1\'); ?>', 
+                '/ *\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\{]+)\s*\}\}\s*/i' => '<?php $1 = $2 ?>',
+                '/ *\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}\s*/i' => '<?php if (isset($1) && $1) { ?>',
+                '/ *\{\{\s*if\s+([^\{]+)\s*\}\}\s*/i' => '<?php if ($1) { ?>',
+                '/ *\{\{\s*else\s*if\s*([^\{]+)\s*\}\}\s*/i' => '<?php } else if ($1) { ?>',
+                '/ *\{\{\s*else\s*\}\}\s*/' => '<?php } else { ?>',
+                '/ *\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}\s*/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
+                '/ *\s*\{\{\s*end\s*\}\}\s*/i' => '<?php } ?>',
+                '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
+                '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
+                '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>', 
+                '/ *\{\{\*.*\*\}\}\s*/i' => '',
             );
-            
+
             $compiledTemplate = preg_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // call をPHPに変換
             $pattern = array();
-            if (preg_match_all('/\{\{\s*call\s+\'[\/]*([\w\/]+)\'\s*\}\}/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/ *\{\{\s*call\s+\'[\/]*([\w\/]+)\'\s*\}\}\s*/i', $compiledTemplate, $matches)) {
                 $tempPath = '';
                 $nameSpace = '';
                 $fileName = '';
@@ -335,7 +340,7 @@ class Application
             
             // checked, selected をPHPに変換
             $pattern = array();
-            if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*.+\s+value\s*=\s*.+)\s*\}\}/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/ *\{\{\s*(checked|selected)\s+(key\s*=\s*.+\s+value\s*=\s*.+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
                 foreach ($matches[2] as $key => $paramater) {
                     $elements = explode(" ", trim($paramater));
                     $tempElements = array();
@@ -359,7 +364,7 @@ class Application
             
             // options をPHPに変換
             $pattern = array();
-            if (preg_match_all('/\{\{\s*options\s+(.+)\s*\}\}/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/ *\{\{\s*options\s+([^\}]+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
                 foreach ($matches[1] as $key => $paramater) {
                     $elements = explode(" ", trim($paramater));
                     $tempElements = array();
@@ -383,12 +388,12 @@ class Application
                     $pattern[$matches[0][$key]] = $statement;
                 }
             }
-            
+
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // code をPHPに変換
             $pattern = array();
-            if (preg_match_all('/\{\{\s*code\s+(.+)\s*\}\}/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/ *\{\{\s*code\s+(.+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
                 foreach ($matches[1] as $key => $paramater) {
                     $compiledTemplate = str_replace($matches[0][$key], '<?php ' . $paramater . ' ?>', $compiledTemplate);
                 }

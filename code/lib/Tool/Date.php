@@ -6,7 +6,7 @@
  * 
  * @access public
  * @author Genies, Inc.
- * @version 1.0.2
+ * @version 1.0.3
  */
 class Tool_Date
 {
@@ -88,7 +88,7 @@ class Tool_Date
         $month = $month + $interval;
 
         // 最終日取得
-        $lastDay = $this->getTheLastday($year, $month);
+        $lastDay = $this->getTheLastday(sprintf("%04d%02d", $year, $month));
         if ($day > $lastDay) { $day = $lastDay; }
         
         // タイムスタンプに変換
@@ -230,8 +230,15 @@ class Tool_Date
      * @param string $month
      * @return date 
      */
-    function getTheLastday($year, $month)
+    function getTheLastday($dateTime)
     {
+        // 日付要素取得
+        $dateTime = $this->makeupDateFormat($dateTime);
+        $date = strptime(date($dateTime), "%Y-%m-%d %H:%M:%S");
+        
+        $year = $date['tm_year'] + 1900;
+        $month = $date['tm_mon'] + 1;
+        
         // mktime関数で日付を0にして前月の末日を取得
         $date = mktime(0, 0, 0, $month + 1, 0, $year);
         

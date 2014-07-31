@@ -7,7 +7,7 @@
  * 
  * @access public
  * @author Genies, Inc.
- * @version 1.0.6
+ * @version 1.0.8
  */
 class Validation {
 
@@ -472,7 +472,7 @@ class Validation {
      * @param string $code エラーメッセージコード
      * @return boolean 正常： true / 異常： false
      */
-    public function password($name, $value, $code = '')
+    public function password($name, $value, $code = '', $mixedLettersFlag = false)
     {
         // 空白時は処理しない
         if (trim($value) == '') { return true; }
@@ -482,10 +482,16 @@ class Validation {
             
         // 検証
         $flag = false;
-        if (preg_match('/^[0-9a-zA-Z\-\_\@\!\#]+$/', $value)) {
-
-            $flag = true;
-
+        if (!$mixedLettersFlag) {
+            // 半角英数
+            if (preg_match('/^[0-9a-zA-Z\-\_\@\!\#]+$/', $value)) {
+                $flag = true;
+            }
+        } else {
+            // 英数字混合
+            if (preg_match('/^[0-9a-zA-Z\-\_\@\!\#]+$/', $value) && preg_match('/([0-9].*[a-zA-Z]|[a-zA-Z].*[0-9])/', $value)) {
+                $flag = true;
+            }
         }
 
         // エラーメッセージ設定
