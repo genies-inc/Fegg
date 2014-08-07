@@ -8,7 +8,7 @@
  * 
  * @access public
  * @author Genies Inc.
- * @version 1.2.5
+ * @version 1.2.6
  * 
  * 2014.06.23 テンプレートのchecked, selectedのkeyに数値を指定できるように修正
  * 2014.07.17 include html タグ追加
@@ -16,6 +16,7 @@
  *            タグの前空白、後空白・改行の削除処理追加
  *            options タグが連続する際にうまく処理されないバグを修正
  * 2014.07.31 メソッド名のミススペル修正 setDiscription → setDescription
+ * 2014.08.07 setTitle, setKeywords, setDescriptionを廃止、setSiteinfoを追加
  */
 class Application
 {
@@ -856,16 +857,6 @@ class Application
     
     
     /**
-     * メタタグ（Description）を設定
-     * @param string $description 
-     */
-    function setDescription($description)
-    {
-        $this->_site['description'] = $description;
-    }
-    
-
-    /**
      * hiddenにデータを設定
      * @param string/array $name hidden名、array() ={'key' => value}型の配列
      * @param string $value 設定する値
@@ -892,16 +883,6 @@ class Application
     }
     
     
-    /**
-     * メタタグ（Keywords）を設定
-     * @param string $keywords 
-     */
-    function setKeywords($keywords)
-    {
-        $this->_site['keywords'] = $keywords;
-    }
-    
-
     /**
      * 言語コード設定
      * @param string $languageCode 
@@ -936,6 +917,16 @@ class Application
     
     
     /**
+     * サイト情報設定
+     * @param string $keywords 
+     */
+    function setSiteinfo($id, $value)
+    {
+        $this->_site[$id] = $value;
+    }
+    
+
+    /**
      * リロード対策用ワンタイムチケット発行
      * @param string $name チケット名
      */
@@ -945,16 +936,6 @@ class Application
         $ticket = md5(uniqid() . mt_rand());
         $_SESSION[$ticketName] = $ticket;
         $this->setHidden($ticketName, htmlspecialchars($ticket, ENT_QUOTES, FEGG_DEFAULT_CHARACTER_CODE));
-    }
-    
-    
-    /**
-     * メタタグ（Title）を設定
-     * @param string $description 
-     */
-    function setTitle($title)
-    {
-        $this->_site['title'] = $title;
     }
     
     
