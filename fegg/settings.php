@@ -33,7 +33,7 @@ $settings['run_mode'] = '1';
 $settings['maintenance_page_url'] = '';
 
 // 開発者IPアドレス（複数指定可）
-$settings['developer_ip'] = array('');
+$settings['developer_ip'] = array('210.138.248.229');
     
 // デフォルト言語コード（１コードのみ指定。多言語処理しない場合は省略可）
 #$settings['default_language'] = 'ja';
@@ -43,6 +43,7 @@ $settings['developer_ip'] = array('');
 
 // テンプレートディレクトリ
 $settings['template_dir'] = FEGG_CODE_DIR . '/template';
+$settings['template_ext'] = 'tpl';
 $settings['template_cache_dir'] = FEGG_CODE_DIR . '/data/cache/template';
 
 // グローバルコンフィグディレクトリ（省略可）

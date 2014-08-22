@@ -8,7 +8,7 @@
  * 
  * @access public
  * @author Genies Inc.
- * @version 1.2.6
+ * @version 1.2.7
  * 
  * 2014.06.23 テンプレートのchecked, selectedのkeyに数値を指定できるように修正
  * 2014.07.17 include html タグ追加
@@ -17,6 +17,7 @@
  *            options タグが連続する際にうまく処理されないバグを修正
  * 2014.07.31 メソッド名のミススペル修正 setDiscription → setDescription
  * 2014.08.07 setTitle, setKeywords, setDescriptionを廃止、setSiteinfoを追加
+ * 2014.08.22 テンプレートの拡張子の指定を可能に
  */
 class Application
 {
@@ -215,7 +216,7 @@ class Application
         }
         
         $template = substr($template, 0, 1) == '/' ? substr($template, 1) : $template;
-        $templateFile = $this->_settings['template_dir'] . $languageDirectory . '/' . $template . ".tpl";
+        $templateFile = $this->_settings['template_dir'] . $languageDirectory . '/' . $template . '.'.$this->_settings['template_ext'];
         $cacheFile = $this->_settings['template_cache_dir'] . '/' . str_replace('/', '@', $languageDirectory . '/' . $template) . '.cache.php';
 
         // テンプレートファイルが存在しない場合は処理を終了
@@ -242,11 +243,11 @@ class Application
                     $parentTemplate = substr($matches[1], 0, 1) == '/' ? substr($matches[1], 1) : $matches[1];
 
                     // 継承元テンプレートに同名のsectionが存在する場合は定義のみ行う
-                    if (!file_exists($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.tpl')) {
-                        echo "Can't extend: " . $this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.tpl';
+                    if (!file_exists($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext'])) {
+                        echo "Can't extend: " . $this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext'];
                         exit;
                     }
-                    $parentTemplate = file_get_contents($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.tpl');
+                    $parentTemplate = file_get_contents($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext']);
                     
                     $tempPattern = array();
                     if (preg_match_all('/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/', $parentTemplate, $parentParts)) {
@@ -941,7 +942,7 @@ class Application
     
     /**
      * 画面表示
-     * @param string $template テンプレートファイル名（.tplは不要）
+     * @param string $template テンプレートファイル名（拡張子は不要）
      */
     function displayPage($template)
     {
