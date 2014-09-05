@@ -8,16 +8,7 @@
  * 
  * @access public
  * @author Genies Inc.
- * @version 1.2.7
- * 
- * 2014.06.23 テンプレートのchecked, selectedのkeyに数値を指定できるように修正
- * 2014.07.17 include html タグ追加
- * 2014.07.30 assign タグ追加
- *            タグの前空白、後空白・改行の削除処理追加
- *            options タグが連続する際にうまく処理されないバグを修正
- * 2014.07.31 メソッド名のミススペル修正 setDiscription → setDescription
- * 2014.08.07 setTitle, setKeywords, setDescriptionを廃止、setSiteinfoを追加
- * 2014.08.22 テンプレートの拡張子の指定を可能に
+ * @version 1.2.8
  */
 class Application
 {
@@ -935,10 +926,10 @@ class Application
     {
         $ticketName = 'ticket_' . $name;
         $ticket = md5(uniqid() . mt_rand());
-        $_SESSION[$ticketName] = $ticket;
+        $this->setSession($ticketName, $ticket);
         $this->setHidden($ticketName, htmlspecialchars($ticket, ENT_QUOTES, FEGG_DEFAULT_CHARACTER_CODE));
     }
-    
+
     
     /**
      * 画面表示
@@ -1005,13 +996,13 @@ class Application
         $ticketName = 'ticket_' . $name;
         $ticketId = $this->in($ticketName, 'POST');
         
-        if (!$ticketId || isset($_SESSION[$ticketName]) == false) {
+        if (!$ticketId || $this->getSession($ticketName) == '') {
             return false;
         }
 
         // ワンタイムチケット認証
-        if ($ticketId && isset($_SESSION[$ticketName]) && $ticketId === $_SESSION[$ticketName]){
-            unset($_SESSION[$ticketName]);
+        if ($ticketId && $ticketId === $this->getSession($ticketName)){
+            $this->unsetSession($ticketName);
             return true;
         } else {
             return false;
