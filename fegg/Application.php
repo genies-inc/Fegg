@@ -54,7 +54,11 @@ class Application
             define('FEGG_DEVELOPER', '1');
             ini_set('display_errors', 1);
         }
-        set_error_handler(array(&$this, "errorHandler"), E_ALL ^E_NOTICE ^E_DEPRECATED);
+        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+            set_error_handler(array(&$this, "errorHandler"), E_ALL ^E_NOTICE ^E_DEPRECATED);
+        } else {
+            set_error_handler(array(&$this, "errorHandler"), E_ALL ^E_NOTICE);
+        }
         
         // 文字コード設定
         $this->_characterCode = FEGG_DEFAULT_CHARACTER_CODE;
@@ -844,7 +848,11 @@ class Application
         $expire = $expire > 0 ? time() + $expire : time() + 604800;
 
         // Cookieに書き出し
-        setcookie($name, $value, $expire, $path, '', false, false);
+        if (version_compare(PHP_VERSION, '5.2.0') >= 0) {
+            setcookie($name, $value, $expire, $path, '', false, false);
+        } else {
+            setcookie($name, $value, $expire, $path, '', false);
+        }
     }
     
     
