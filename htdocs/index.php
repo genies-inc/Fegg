@@ -83,7 +83,6 @@ $feggUri = $feggUri ? $feggUri : $uri;
 $uriSegments = explode('/', $feggUri);
 $tempPath = '';
 $fileName = '';
-$nameSpace = '';
 $className = '';
 $methodName = '';
 $parameter = array();
@@ -92,7 +91,6 @@ foreach ($uriSegments as $key => $value) {
 
     if ($tempPath) {
         $tempPath .= '/';
-        $nameSpace .= '_';
     }
     
     // 同一階層に同一のフォルダ名とファイル名が存在する場合はファイルを優先する
@@ -104,7 +102,6 @@ foreach ($uriSegments as $key => $value) {
     }
 
     $tempPath .= $value;
-    $nameSpace .= ucwords($value);
 
 }
 
@@ -127,7 +124,7 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
 
         // インスタンス生成
         require(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php');
-        $className = $nameSpace . $fileName;
+        $className = $fileName;
         $classInstance = new $className;
 
         // 初期化
