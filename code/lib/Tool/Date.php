@@ -6,7 +6,7 @@
  * 
  * @access public
  * @author Genies, Inc.
- * @version 1.0.3
+ * @version 1.0.4
  */
 class Tool_Date
 {
@@ -102,35 +102,54 @@ class Tool_Date
      * ２つの日時の日数差取得
      * @param string $fromDateTime
      * @param string $toDateTime
+     * @param boolean $month true:月数で算出 false:日数で算出
      * @return int 
      */
-    function getDiff($fromDateTime, $toDateTime)
+    function getDiff($fromDateTime, $toDateTime, $month = false)
     {
-        // 日付要素取得
-        $fromDateTime = $this->makeupDateFormat($fromDateTime);
-        $date = strptime(date($fromDateTime), "%Y-%m-%d %H:%M:%S");
-        $year = $date['tm_year'] + 1900;
-        $month = $date['tm_mon'] + 1;
-        $day = $date['tm_mday'];
-        $hour = $date['tm_hour'];
-        $min = $date['tm_min'];
-        $sec = $date['tm_sec'];
-        $fromTimeStamp = mktime($hour, $min, $sec, $month, $day, $year);
-
-        $toDateTime = $this->makeupDateFormat($toDateTime);
-        $date = strptime(date($toDateTime), "%Y-%m-%d %H:%M:%S");
-        $year = $date['tm_year'] + 1900;
-        $month = $date['tm_mon'] + 1;
-        $day = $date['tm_mday'];
-        $hour = $date['tm_hour'];
-        $min = $date['tm_min'];
-        $sec = $date['tm_sec'];
-        $toTimeStamp = mktime($hour, $min, $sec, $month, $day, $year);
-
-        $intervalTime = $toTimeStamp - $fromTimeStamp;
-        $intervalDay = $intervalTime / 3600 / 24;
+        $interval = 0;
         
-        return $intervalDay;
+        if ($month) {
+
+            // 月数差
+            $fromDateTime = $this->makeupDateFormat($fromDateTime);
+            $toDateTime = $this->makeupDateFormat($toDateTime);
+
+            $fromTime = strtotime($fromDateTime);
+            $toTime = strtotime($toDateTime);
+            $fromMonth = date("Y", $fromTime) * 12 + date("m", $fromTime);
+            $toMonth = date("Y", $toTime) * 12 + date("m", $toTime);
+            
+            $interval = $toMonth - $fromMonth;
+            
+        } else {
+            
+            // 日数差
+            $fromDateTime = $this->makeupDateFormat($fromDateTime);
+            $date = strptime(date($fromDateTime), "%Y-%m-%d %H:%M:%S");
+            $year = $date['tm_year'] + 1900;
+            $month = $date['tm_mon'] + 1;
+            $day = $date['tm_mday'];
+            $hour = $date['tm_hour'];
+            $min = $date['tm_min'];
+            $sec = $date['tm_sec'];
+            $fromTimeStamp = mktime($hour, $min, $sec, $month, $day, $year);
+
+            $toDateTime = $this->makeupDateFormat($toDateTime);
+            $date = strptime(date($toDateTime), "%Y-%m-%d %H:%M:%S");
+            $year = $date['tm_year'] + 1900;
+            $month = $date['tm_mon'] + 1;
+            $day = $date['tm_mday'];
+            $hour = $date['tm_hour'];
+            $min = $date['tm_min'];
+            $sec = $date['tm_sec'];
+            $toTimeStamp = mktime($hour, $min, $sec, $month, $day, $year);
+
+            $intervalTime = $toTimeStamp - $fromTimeStamp;
+            $interval = $intervalTime / 3600 / 24;
+        }
+        
+        return $interval;
     }
     
     
