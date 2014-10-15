@@ -130,7 +130,7 @@ class Application
                 $data[$key] = $this->_setHiddenForTemplate($value, $tempKey);
             }
             
-        } else {
+        } else if(!empty($currentKey)) {
             $currentKey = preg_replace('/^\[([^\]]+)\]/i', '\1', $currentKey);
             $this->_hiddenForTemplate[$currentKey] = $data;
         }
