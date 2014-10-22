@@ -200,10 +200,32 @@ class Application
      * 指定されたテンプレートの出力結果を出力
      * @param string $template テンプレートID
      * @param array $assignedValue 表示データ
+     * @param string $directory カレントディレクトリ
      * @return テンプレートの実行結果を画面出力
      */
-    function displayTemplate($template, $assignedValue = array())
+    function displayTemplate($template, $assignedValue = array(), $directory = NULL)
     {
+        // カレントディレクトリ指定があり、テンプレートIDの頭が「/」じゃない場合は相対パス
+        if( $directory !== NULL && substr($template, 0, 1) !== '/' ) {
+            $template = $directory.$template;
+        }
+        // 相対パスの指定を削除する
+        if( strpos( $template, '.' ) === FALSE ) {
+            $template = $template;
+        } else {
+            $stack = array();
+            foreach( explode( '/', $template ) as $path ) {
+                if( $path === '..' ) {
+                    if( count( $stack ) ) {
+                        array_pop( $stack );
+                    }
+                } else if( $path !== '.' && $path !== '' ) {
+                    array_push( $stack, $path );
+                }
+            }
+            $template = implode( '/', $stack );
+        }
+
         // ディレクトリを設定
         $languageDirectory = '';
         if ($this->_isMultiLanguage()) {
@@ -219,6 +241,8 @@ class Application
             echo "Can't Read: " . $templateFile;
             return;
         }
+        // テンプレートファイルのカレントディレクトリパス
+        $currentDir = str_replace( $this->_settings['template_dir'].'/', '', dirname( $templateFile ) ).'/';
         
         // テンプレートが更新されている場合はキャッシュファイルを作成
         if (!file_exists($cacheFile) || filemtime($cacheFile) < filemtime($templateFile)) {
@@ -234,8 +258,12 @@ class Application
                 $parentTemplate = '';
                 $parentParts = '';
                 if (isset($matches[1]) && $matches[1]) {
-                    
-                    $parentTemplate = substr($matches[1], 0, 1) == '/' ? substr($matches[1], 1) : $matches[1];
+                    // 頭が「/」じゃない場合は相対ファイルとして読み込む
+                    if( substr($matches[1], 0, 1) == '/' ) {
+                        $parentTemplate = substr($matches[1], 1);
+                    } else {
+                        $parentTemplate = $currentDir . $matches[1];
+                    }
 
                     // 継承元テンプレートに同名のsectionが存在する場合は定義のみ行う
                     if (!file_exists($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext'])) {
@@ -253,7 +281,7 @@ class Application
                     }
                 }
 
-                $replacement = '$2<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate("$1", $assignedValue); ?>';
+                $replacement = sprintf('$2<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate("$1", $assignedValue, "%s"); ?>', $currentDir);
                 $compiledTemplate = preg_replace($pattern, $replacement, $compiledTemplate);
             }
 
@@ -263,18 +291,25 @@ class Application
             $callback .= '$statement = \'$\' . trim(array_shift($tokens)); ';
             $callback .= '$variable = $statement; ';
             $callback .= '$htmlSpecialCharsFlag = true; ';
+            $callback .= '$breakLineFlag = false; ';
             $callback .= 'foreach ($tokens as $modifire) { ';
             $callback .= '    $parameters = explode(":", trim($modifire)); ';
             $callback .= '    $modifire = array_shift($parameters); ';
             $callback .= '    if ($htmlSpecialCharsFlag && strtolower($modifire) == "noescape") { ';
             $callback .= '        $htmlSpecialCharsFlag = false; ';
+            $callback .= '    } else if(! $breakLineFlag && strtolower($modifire) == "br") { ';
+            $callback .= '        $breakLineFlag = true; ';
             $callback .= '    } else { ';
             $callback .= '        $parameter = ""; foreach ($parameters as $value) { $parameter .= "," . $value; } ';
             $callback .= '        $statement = $modifire . "(" . $statement . $parameter . ")"; ';
             $callback .= '    } ';
             $callback .= '} ';
-            $callback .= 'if ($htmlSpecialCharsFlag) { ';
+            $callback .= 'if ($htmlSpecialCharsFlag && $breakLineFlag) { ';
+            $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo nl2br( htmlSpecialChars($statement, ENT_QUOTES, \'' . FEGG_DEFAULT_CHARACTER_CODE . '\') ); } ?>"; ';
+            $callback .= '} else if($htmlSpecialCharsFlag) { ';
             $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo htmlSpecialChars($statement, ENT_QUOTES, \'' . FEGG_DEFAULT_CHARACTER_CODE . '\'); } ?>"; ';
+            $callback .= '} else if($breakLineFlag) { ';
+            $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo nl2br($statement); } ?>"; ';
             $callback .= '} else { ';
             $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo $statement; } ?>"; ';
             $callback .= '} ';
@@ -286,10 +321,10 @@ class Application
             $pattern = array(
                 '/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
                 '/ *\{\{\s*end section (\w+)\s*\}\}\s*/i' => '<?php }} section_$1($assignedValue); ?>',
-                '/ *\{\{\s*head\s*\}\}\s*/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->displayTemplate($value, $assignedValue); } } ?>', 
-                '/ *\{\{\s*include\s+head\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php if (isset($head)) { array_unshift($head, \'$1\'); } else { $head[] = \'$1\'; } ?>', 
-                '/ *\{\{\s*include\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate(\'$1\', $assignedValue); ?>', 
-                '/ *\{\{\s*include\s+html\s+\'([^\s]+)\'\s*\}\}\s*/i' => '<?php include(FEGG_HTML_DIR . \'$1\'); ?>', 
+                '/ *\{\{\s*head\s*\}\}\s*/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue, $value[\'dir\']); } } ?>',
+                '/ *\{\{\s*include\s+head\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php if (isset($head)) { array_unshift($head, array( \'file\'=>\'$1\', \'dir\'=>\''.$currentDir.'\' )); } else { $head[] = array( \'file\'=>\'$1\', \'dir\'=>\''.$currentDir.'\' ); } ?>',
+                '/ *\{\{\s*include\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate(\'$1\', $assignedValue, \''.$currentDir.'\'); ?>',
+                '/ *\{\{\s*include\s+html\s+\'([^\s]+)\'\s*\}\}\s*/i' => '<?php include(FEGG_HTML_DIR . \'$1\'); ?>',
                 '/ *\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\{]+)\s*\}\}\s*/i' => '<?php $1 = $2 ?>',
                 '/ *\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}\s*/i' => '<?php if (isset($1) && $1) { ?>',
                 '/ *\{\{\s*if\s+([^\{]+)\s*\}\}\s*/i' => '<?php if ($1) { ?>',
@@ -299,7 +334,8 @@ class Application
                 '/ *\s*\{\{\s*end\s*\}\}\s*/i' => '<?php } ?>',
                 '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
                 '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
-                '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>', 
+                '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
+                '/ *\{\{\s*base\s*\}\}\s*/i' => '<?php echo FEGG_REWRITEBASE; ?>', 
                 '/ *\{\{\*.*\*\}\}\s*/i' => '',
             );
 
