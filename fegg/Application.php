@@ -281,7 +281,7 @@ class Application
                     }
                 }
 
-                $replacement = sprintf('$2<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate("$1", $assignedValue, "%s"); ?>', $currentDir);
+                $replacement = '$2<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate("$1", $assignedValue, "'.$currentDir.'"); ?>';
                 $compiledTemplate = preg_replace($pattern, $replacement, $compiledTemplate);
             }
 
