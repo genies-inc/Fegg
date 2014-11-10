@@ -263,18 +263,25 @@ class Application
             $callback .= '$statement = \'$\' . trim(array_shift($tokens)); ';
             $callback .= '$variable = $statement; ';
             $callback .= '$htmlSpecialCharsFlag = true; ';
+            $callback .= '$breakLineFlag = false; ';
             $callback .= 'foreach ($tokens as $modifire) { ';
             $callback .= '    $parameters = explode(":", trim($modifire)); ';
             $callback .= '    $modifire = array_shift($parameters); ';
             $callback .= '    if ($htmlSpecialCharsFlag && strtolower($modifire) == "noescape") { ';
             $callback .= '        $htmlSpecialCharsFlag = false; ';
+            $callback .= '    } else if(! $breakLineFlag && strtolower($modifire) == "br") { ';
+            $callback .= '        $breakLineFlag = true; ';
             $callback .= '    } else { ';
             $callback .= '        $parameter = ""; foreach ($parameters as $value) { $parameter .= "," . $value; } ';
             $callback .= '        $statement = $modifire . "(" . $statement . $parameter . ")"; ';
             $callback .= '    } ';
             $callback .= '} ';
-            $callback .= 'if ($htmlSpecialCharsFlag) { ';
+            $callback .= 'if ($htmlSpecialCharsFlag && $breakLineFlag) { ';
+            $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo nl2br( htmlSpecialChars($statement, ENT_QUOTES, \'' . FEGG_DEFAULT_CHARACTER_CODE . '\') ); } ?>"; ';
+            $callback .= '} else if($htmlSpecialCharsFlag) { ';
             $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo htmlSpecialChars($statement, ENT_QUOTES, \'' . FEGG_DEFAULT_CHARACTER_CODE . '\'); } ?>"; ';
+            $callback .= '} else if($breakLineFlag) { ';
+            $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo nl2br($statement); } ?>"; ';
             $callback .= '} else { ';
             $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo $statement; } ?>"; ';
             $callback .= '} ';
@@ -300,6 +307,7 @@ class Application
                 '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
                 '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
                 '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>', 
+                '/ *\{\{\s*base\s*\}\}\s*/i' => '<?php echo FEGG_REWRITEBASE; ?>',
                 '/ *\{\{\*.*\*\}\}\s*/i' => '',
             );
 
