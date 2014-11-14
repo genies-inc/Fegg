@@ -200,14 +200,13 @@ class Application
      * 指定されたテンプレートの出力結果を出力
      * @param string $template テンプレートID
      * @param array $assignedValue 表示データ
-     * @param string $directory カレントディレクトリ
      * @return テンプレートの実行結果を画面出力
      */
-    function displayTemplate($template, $assignedValue = array(), $directory = NULL)
+    function displayTemplate($template, $assignedValue = array())
     {
         // カレントディレクトリ指定があり、テンプレートIDの頭が「/」じゃない場合は相対パス
-        if( $directory !== NULL && substr($template, 0, 1) !== '/' ) {
-            $template = $directory.$template;
+        if( isset( $this->_settings['current_template_dir'] ) && ! empty( $this->_settings['current_template_dir'] ) && substr($template, 0, 1) !== '/' ) {
+            $template = $this->_settings['current_template_dir'].$template;
         }
         // 相対パスの指定を削除する
         if( strpos( $template, '.' ) === FALSE ) {
@@ -281,7 +280,7 @@ class Application
                     }
                 }
 
-                $replacement = '$2<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate("$1", $assignedValue, "'.$currentDir.'"); ?>';
+                $replacement = '$2<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory("'.$currentDir.'"); $assignedClass[\'app\']->displayTemplate("$1", $assignedValue); ?>';
                 $compiledTemplate = preg_replace($pattern, $replacement, $compiledTemplate);
             }
 
@@ -321,9 +320,9 @@ class Application
             $pattern = array(
                 '/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
                 '/ *\{\{\s*end section (\w+)\s*\}\}\s*/i' => '<?php }} section_$1($assignedValue); ?>',
-                '/ *\{\{\s*head\s*\}\}\s*/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue, $value[\'dir\']); } } ?>',
+                '/ *\{\{\s*head\s*\}\}\s*/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->setCurrentTemplateDirectory($value[\'dir\']); $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue); } } ?>',
                 '/ *\{\{\s*include\s+head\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php if (isset($head)) { array_unshift($head, array( \'file\'=>\'$1\', \'dir\'=>\''.$currentDir.'\' )); } else { $head[] = array( \'file\'=>\'$1\', \'dir\'=>\''.$currentDir.'\' ); } ?>',
-                '/ *\{\{\s*include\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->displayTemplate(\'$1\', $assignedValue, \''.$currentDir.'\'); ?>',
+                '/ *\{\{\s*include\s+\'([\w\/]+)\'\s*\}\}\s*/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory($currentDir); $assignedClass[\'app\']->displayTemplate(\'$1\', $assignedValue); ?>',
                 '/ *\{\{\s*include\s+html\s+\'([^\s]+)\'\s*\}\}\s*/i' => '<?php include(FEGG_HTML_DIR . \'$1\'); ?>',
                 '/ *\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\{]+)\s*\}\}\s*/i' => '<?php $1 = $2 ?>',
                 '/ *\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}\s*/i' => '<?php if (isset($1) && $1) { ?>',
@@ -891,6 +890,16 @@ class Application
         }
     }
     
+
+    /**
+     * テンプレートのカレントディレクトリを設定
+     * @param string $dir カレントディレクトリ
+     */
+    function setCurrentTemplateDirectory( $dir )
+    {
+        $this->_settings['current_template_dir'] = $dir;
+    }
+
     
     /**
      * hiddenにデータを設定
