@@ -45,10 +45,7 @@
                 </div>
                 <div class="collapse navbar-collapse">
                   <ul class="nav navbar-nav">
-                    <li><a href="/Project">プロジェクト</a></li>
-                    <li><a href="/Status">営業状況</a></li>
-                    <li><a href="/Alert">未完了アラート</a></li>
-                    <li><a href="/MilestoneLog">変更ログ</a></li>
+                    <li><a href="#">Menu1</a></li>
                   </ul>
                 </div><!--/.nav-collapse -->
               </div>
