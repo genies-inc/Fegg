@@ -412,7 +412,7 @@ class Application
                     $statement .= '<?php foreach (' . $elements['source'] . ' as $templateValue[\'key\'] => $templateValue[\'value\']) { ?>';
                     $statement .= '<?php echo \'<option value=\\\'\' . $templateValue[\'key\'] . \'\\\'\'; ';
                     if (isset($elements['selected'])) {
-                        $statement .= 'if (isset(' . $elements['selected'] . ') && $templateValue[\'key\'] == ' . $elements['selected'] . ') { echo \' selected\'; } ';
+                        $statement .= 'if (isset(' . $elements['selected'] . ') && (string) $templateValue[\'key\'] === (string) ' . $elements['selected'] . ') { echo \' selected\'; } ';
                     }
                     $statement .= 'echo \'>\' . $templateValue[\'value\'] . \'</option>\'; ?>';
                     $statement .= '<?php } ?>';
