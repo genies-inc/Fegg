@@ -8,7 +8,7 @@
  * 
  * @access public
  * @author Genies Inc.
- * @version 1.2.8
+ * @version 1.2.9
  */
 class Application
 {
@@ -209,9 +209,7 @@ class Application
             $template = $this->_settings['current_template_dir'].$template;
         }
         // 相対パスの指定を削除する
-        if( strpos( $template, '.' ) === FALSE ) {
-            $template = $template;
-        } else {
+        if (is_numeric(strpos($template, '.'))) {
             $stack = array();
             foreach( explode( '/', $template ) as $path ) {
                 if( $path === '..' ) {
