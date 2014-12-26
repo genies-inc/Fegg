@@ -7,7 +7,7 @@
  * ドキュメントルートに配置された .htaccess がその制御を行っている。
  * 
  * @author Genies, Inc.
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 // アプリケーションが設置されている位置
@@ -159,23 +159,5 @@ function &FEGG_getInstance() {
     global $classInstance;
     $instance = $classInstance->getInstance();
     return $instance;
-}
-
-
-/**
- * FEGG動作環境表示
- */
-function &FEGG_getInfo() {
-    echo '<pre>';
-    foreach (get_defined_constants(true) as $key => $value) {
-        if ($key == 'user') { var_dump($value); }
-    }
-    echo '</pre>';
-
-    echo '<pre>';
-    foreach ($_SERVER as $key => $value) {
-        var_dump($value);
-    }
-    echo '</pre>';    
 }
 /* End of file index.php */
