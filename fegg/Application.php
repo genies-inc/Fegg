@@ -70,8 +70,8 @@ class Application
 
     /**
      * 文字コード変換
-     * @param string/array $data
-     * @return string/array
+     * @param mixed $data
+     * @return mixed
      */
     private function _convertCharacterCode($data)
     {
@@ -96,8 +96,8 @@ class Application
     
     /**
      * リクエストデータ変換
-     * @param string/array $data
-     * @return string/array
+     * @param mixed $data
+     * @return mixed
      */
     private function _convertRequestData($data)
     {
@@ -117,8 +117,8 @@ class Application
 
     /**
      * テンプレート用にHiddenを編集
-     * @param string/array $data
-     * @return string/array
+     * @param mixed $data
+     * @return mixed
      */
     private function _setHiddenForTemplate($data, $currentKey = '')
     {
@@ -816,7 +816,7 @@ class Application
      * リクエストデータ取得
      * @param string $name 取得対象のデータ名。省略時は全て取得。
      * @param type $method リクエストメソッド(POST/GET)。省略時は全て取得。
-     * @return string/array 取得結果が単一: 取得値（string） / 取得結果が配列 取得値（array）
+     * @return mixed 取得結果が単一: 取得値（string） / 取得結果が配列 取得値（array）
      */
     function in($name = '', $method = '')
     {
@@ -897,7 +897,7 @@ class Application
     
     /**
      * hiddenにデータを設定
-     * @param string/array $name hidden名、もしくは {'key' => value} 型の配列
+     * @param mixed $name hidden名、もしくは {'key' => value} 型の配列
      * @param string $value 設定する値
      */
     function setHidden($name, $value = "")
