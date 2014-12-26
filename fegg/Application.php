@@ -180,7 +180,7 @@ class Application
      * @param string $date 変換元日付
      * @param string $fromTimezone 変換元タイムゾーン（Asia/Tokyo形式）
      * @param string $toTimezone 変換先タイムゾーン（Asia/Tokyo形式）
-     * @return date 変換後日付
+     * @return string 変換後日付
      */
     function convertDatetime($date, $fromTimezone, $toTimezone)
     {
@@ -568,9 +568,9 @@ class Application
     
     /**
      * 指定されたテンプレートの出力結果を文字列として返す
-     * @param string $template テンプレートID
+     * @param string $templateFile テンプレートファイル
      * @param array $assignedValue 表示データ
-     * @return テンプレートの出力結果文字列
+     * @return string テンプレートの出力結果
      */
     function fetchTemplate($templateFile, $assignedValue = array())
     {
@@ -604,7 +604,6 @@ class Application
                 $fileName = ucwords($value);
                 break;
             }
-
             $tempPath .= $value . '/';
             $nameSpace .= ucwords($value) . '_';
         }
@@ -621,8 +620,8 @@ class Application
     
     /**
      * Cookie取得
-     * @param string $key_name
-     * @return 対象のCookie値
+     * @param string $name
+     * @return string 対象のCookie値
      */
     function getCookie($name = '')
     {
@@ -636,8 +635,9 @@ class Application
 
     /**
      * 指定タイムゾーンの日時取得
+     * @param string $format 日付フォーマット
      * @param string $timeZone タイムゾーン（Asia/Tokyo形式、省略時はFEGG_DEFAULT_TIMEZONEを使用）
-     * @return 指定したタイムゾーンの日時（指定フォーマット、指定無しは y-m-d H:i:s 形式）
+     * @return string 指定したタイムゾーンの日時（指定フォーマット、指定無しは y-m-d H:i:s 形式）
      */
     function getDatetime($format = 'Y-m-d H:i:s', $timeZone = '')
     {
@@ -646,14 +646,13 @@ class Application
         } else {
             date_default_timezone_set(FEGG_DEFAULT_TIMEZONE);
         }
-        
         return date($format);
     }
     
     
     /**
      * インスタンス取得
-     * @return このクラスのインスタンス
+     * @return object このクラスのインスタンス
      */
     function &getInstance()
     {
@@ -693,9 +692,7 @@ class Application
 
         if ($this->_isSupportLanguage($languageCode)){
             return $languageCode;
-
         } else {
-
             // 取得値がサポート言語ではない場合は先頭２文字で再判定
             if ($languageCode && $this->_isSupportLanguage(substr($languageCode, 0, 2))) {
                 return substr($languageCode, 0, 2);
@@ -710,7 +707,6 @@ class Application
     /**
      * セッション値取得
      * @param String $name
-     * @param String $value 
      */
     function getSession($name = '')
     {
@@ -730,7 +726,7 @@ class Application
     /**
      * アプリケーションの設定値取得
      * @param string $name 設定名
-     * @return 設定値
+     * @return string 設定値
      */
     function getSetting($name)
     {
@@ -822,7 +818,7 @@ class Application
      * リクエストデータ取得
      * @param string $name 取得対象のデータ名。省略時は全て取得。
      * @param type $method リクエストメソッド(POST/GET)。省略時は全て取得。
-     * @return 取得結果が単一: 取得値（string） / 取得結果が配列 取得値（array）
+     * @return string/array 取得結果が単一: 取得値（string） / 取得結果が配列 取得値（array）
      */
     function in($name = '', $method = '')
     {
@@ -963,7 +959,8 @@ class Application
     
     /**
      * サイト情報設定
-     * @param string $keywords 
+     * @param string $id ID
+     * @param string $value 設定値
      */
     function setSiteinfo($id, $value)
     {
@@ -1004,7 +1001,7 @@ class Application
 
     /**
      * クッキーを削除
-     * @param <type> $key
+     * @param string $name
      */
     function unsetCookie($name)
     {
@@ -1014,8 +1011,7 @@ class Application
     
     /**
      * hiddenのデータを削除（テンプレートタグ {{hidden}} で出力される）
-     * @param <type> $key
-     * @param <type> $name
+     * @param string $name
      */
     function unsetHidden($name)
     {
@@ -1042,7 +1038,7 @@ class Application
     /**
      * ワンタイムチケット使用
      * @param string $name
-     * @return チケット有効： true / チケット無効： false
+     * @return boolean チケット有効： true / チケット無効： false
      */
     function useTicket($name)
     {
