@@ -652,7 +652,7 @@ class Application
     
     /**
      * インスタンス取得
-     * @return object このクラスのインスタンス
+     * @return Application このクラスのインスタンス
      */
     function &getInstance()
     {
@@ -899,7 +899,7 @@ class Application
     
     /**
      * hiddenにデータを設定
-     * @param string/array $name hidden名、array() ={'key' => value}型の配列
+     * @param string/array $name hidden名、もしくは {'key' => value} 型の配列
      * @param string $value 設定する値
      */
     function setHidden($name, $value = "")
