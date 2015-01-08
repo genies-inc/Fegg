@@ -28,8 +28,12 @@ Feggは、下記の３ファイルで構成されています。
 
 その他
 ----
-## さくらインターネットの共用サーバーへの導入
-
-さくらインターネットのサーバーに導入する場合、.htaccessを修正する必要がある
+さくらインターネットのサーバーに導入する場合、.htaccessを修正する必要があります。
 - php_flag、php_valueが使えないので全てコメントアウトし、コントロールパネルからphp.iniを書き換える（書き換えなくても動作はする）
-- 『RewriteRule ^(.+)$ index.php/$1/ [L]』を『RewriteRule ^(.+)$ index.php?/$1/ [L,QSA]』に書き換える
+- .htaccessの以下の部分を書き換える
+```
+RewriteRule ^(.+)$ index.php/$1/ [L]
+```
+```
+RewriteRule ^(.+)$ index.php?/$1/ [L,QSA]
+```
