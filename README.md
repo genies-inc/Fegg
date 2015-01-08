@@ -7,4 +7,4 @@ Simple Framework For PHP
 
 さくらインターネットのサーバーに導入する場合、.htaccessを修正する必要がある
 - php_flag、php_valueが使えないので全てコメントアウトし、コントロールパネルからphp.iniを書き換える（書き換えなくても動作はする）
-- 『RewriteRule ^(.+)$ index.php/$1/ [L]』を『RewriteRule ^(.+)$ index.php?/$1/ [L]』に書き換える
+- 『RewriteRule ^(.+)$ index.php/$1/ [L]』を『RewriteRule ^(.+)$ index.php?/$1/ [L,QSA]』に書き換える
