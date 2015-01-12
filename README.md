@@ -38,5 +38,6 @@ RewriteRule ^(.+)$ index.php/$1/ [L]
 ```
 変更後
 ```
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.+)$ index.php?/$1/ [L,QSA]
 ```
