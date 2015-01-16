@@ -18,7 +18,7 @@ class Tool_File
 
     /**
      * ディレクトリ間の全ファイルコピー
-     * @param string $sourceDirectory
+     * @param string $fromDirectory
      * @param string $toDirectory
      */
     function copyAll($fromDirectory, $toDirectory)
@@ -74,8 +74,8 @@ class Tool_File
     
     /**
      * ファイルコピー
-     * @param string $from
-     * @param string $to
+     * @param string $source
+     * @param string $dest
      */
     function copyFile($source, $dest)
     {
@@ -219,7 +219,7 @@ class Tool_File
     
     /**
      * ディレクトリ中のファイル更新日時変更
-     * @param string $file
+     * @param string $directory
      * @param string $datetime
      */
     function touchDirectory($directory, $datetime)

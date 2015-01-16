@@ -245,9 +245,8 @@ class Tool_Date
     
     /**
      * 月末の日付取得
-     * @param string $year
-     * @param string $month
-     * @return date 
+     * @param string $dateTime
+     * @return string 
      */
     function getTheLastday($dateTime)
     {
