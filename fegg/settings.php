@@ -16,7 +16,8 @@ define('FEGG_DEFAULT_TIMEZONE', 'Asia/Tokyo');
 if (defined('FEGG_REWRITEBASE')) {
     // ドメイン
     define('FEGG_CURRENT_PROTOCOL', isset($_SERVER['X-SSL-REQUEST']) && $_SERVER['X-SSL-REQUEST'] == 'on' ? 'https' : 'http');
-    define('FEGG_UNIQUE_SCHEME', isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'dummy.com');
+    define('FEGG_CURRENT_PORT', in_array( $_SERVER['SERVER_PORT'], array( '80', '443' ) ) ? '' : $_SERVER['SERVER_PORT']);
+    define('FEGG_UNIQUE_SCHEME', (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'dummy.com').(FEGG_CURRENT_PORT ? ':'.FEGG_CURRENT_PORT : ''));
     define('FEGG_CURRENT_DOMAIN', FEGG_CURRENT_PROTOCOL . '://' . FEGG_UNIQUE_SCHEME);
     define('FEGG_HTTP_DOMAIN', 'http://' . FEGG_UNIQUE_SCHEME);
     define('FEGG_HTTPS_DOMAIN', 'https://' . FEGG_UNIQUE_SCHEME);
