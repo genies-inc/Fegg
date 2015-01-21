@@ -424,7 +424,7 @@ class Application
 
             // code をPHPに変換
             $pattern = array();
-            if (preg_match_all('/ *\{\{\s*code\s+(.+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/ *\{\{\s*code\s+([^\{]+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
                 foreach ($matches[1] as $key => $paramater) {
                     $compiledTemplate = str_replace($matches[0][$key], '<?php ' . $paramater . ' ?>', $compiledTemplate);
                 }
