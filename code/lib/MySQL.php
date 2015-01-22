@@ -53,7 +53,7 @@ class DB
 
     /**
      * クエリー構築
-     * @param string $sqlType 
+     * @param string $queryType 
      */
     function _buildQuery($queryType) {
         
@@ -229,7 +229,8 @@ class DB
      * @param string $server MySQLサーバー（ポート指定例：localhost:3306）
      * @param string $user ユーザー
      * @param string $password パスワード
-     * @param string $db データベース 
+     * @param string $database データベース 
+     * @param string $port ポート番号
      */
     function _connect($server, $user, $password, $database, $port = '')
     {
@@ -389,7 +390,7 @@ class DB
     /**
      * 連想配列判定
      * @param array 判定対象の配列
-     * @return true: 連想配列 false: 配列
+     * @return boolean true: 連想配列 false: 配列
      */
     function _isHash($array)
     {
@@ -486,7 +487,7 @@ class DB
     /**
      * データ件数カウント
      * @param string $table 指定時：各メソッドで指定された値でquery構築、省略時：setQueryメソッドによるquery設定
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function count($table)
     {
@@ -509,7 +510,7 @@ class DB
     /**
      * データ削除
      * @param string $table
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function delete($table = '')
     {
@@ -532,7 +533,7 @@ class DB
 
     /**
      * クエリー実行
-     * @return int 結果コード
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function execute()
     {
@@ -633,7 +634,7 @@ class DB
     /**
      * データ追加
      * @param string $table 
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function insert($table)
     {
@@ -656,7 +657,7 @@ class DB
     
     /**
      * マスターデータベースへの接続
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function masterServer()
     {
@@ -691,7 +692,7 @@ class DB
     /**
      * データ取得
      * @param string $table 指定時：各メソッドで指定された値でquery構築、省略時：setQueryメソッドによるquery設定
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
 
      */
     function select($table)
@@ -716,7 +717,7 @@ class DB
     /**
      * グループ設定
      * @param string $query 
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function setGroup($query)
     {
@@ -730,7 +731,7 @@ class DB
      * 操作項目設定
      * @param string $query 複数の場合カンマ区切り
      * @param array $values 連想配列の場合は$queryで指定した項目名と一致するもの、配列の場合は左から順に値を使用
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
     */
     function setItem($query, $parameter = '')
     {
@@ -778,7 +779,7 @@ class DB
      * 取得件数設定
      * @param int $limit
      * @param int $offset 
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function setLimit($limit, $offset = 0)
     {
@@ -791,7 +792,7 @@ class DB
     /**
      * ソート順設定
      * @param string $query 
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function setOrder($query)
     {
@@ -805,7 +806,7 @@ class DB
      * クエリー設定
      * @param string $query
      * @param array $parameter 
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function setQuery($query, $parameter = array())
     {
@@ -818,8 +819,6 @@ class DB
     
     /**
      * 条件式設定
-     * @param string $query 条件式（パラメータ箇所は?で記述）
-     * @param array $parameter 複数ある場合は変数をカンマ区切りで順に指定
      */
     function setWhere()
     {
@@ -949,7 +948,7 @@ class DB
     
     /**
      * スレーブサーバーへの接続
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function slaveServer()
     {
@@ -996,7 +995,7 @@ class DB
     
     /**
      * 常用クエリーを設定しない
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function unsetRegularUseQuery()
     {
@@ -1008,7 +1007,7 @@ class DB
     
     /**
      * 各テーブルの常用クエリーを設定しない
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function unsetRegularUseQueryForTable()
     {
@@ -1021,7 +1020,7 @@ class DB
     /**
      * データ取得
      * @param string $table
-     * @return object メソッドチェーンに対応するため自身のオブジェクト($this)を返す
+     * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
      */
     function update($table)
     {
