@@ -156,7 +156,7 @@ class Tool_Date
     /**
      * 西暦取得
      * @param string $date H010101形式の和暦
-     * @return string「%Y-%m-%d」形式
+     * @return string %Y-%m-%d形式
      */
     function getWesternCalendar($date)
     {

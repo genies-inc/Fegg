@@ -1002,7 +1002,7 @@ class Application
      */
     function unsetCookie($name)
     {
-        $this->setCookie($name, '', time() - 86500, '/', '');
+        $this->setCookie($name, '', time() - 86500, '/');
     }
     
     
