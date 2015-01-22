@@ -288,7 +288,7 @@ class DB
      * クエリ実行
      * @param string $query SQL文（パラメーター部分は?で表記）
      * @param array $parameter パラメーター配列（SQL中の?の順序に合わせる）
-     * @return 正常時: True / 異常時: False
+     * @return boolean 正常時: True 異常時: False
      */
     function _executeQuery($query, $parameter)
     {
@@ -301,7 +301,6 @@ class DB
 
         // 結果格納変数の初期化
         $this->_affectedRows = 0;
-        $record = array();
 
         // クエリー実行
         if (!$result = mysql_query($query, $this->_connect)) {
@@ -316,7 +315,6 @@ class DB
         } else { $this->_error($query); }
 
         return $this->_affectedRows;
-        
     }   
     
     
@@ -731,7 +729,7 @@ class DB
     /**
      * 操作項目設定
      * @param string $query 複数の場合カンマ区切り
-     * @param array $parameter 連想配列の場合は$queryで指定した項目名と一致するもの、配列の場合は左から順に値を使用
+     * @param mixed $parameter 連想配列の場合は$queryで指定した項目名と一致するもの、配列の場合は左から順に値を使用
      * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
     */
     function setItem($query, $parameter = '')

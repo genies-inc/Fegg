@@ -156,7 +156,7 @@ class Tool_Date
     /**
      * 西暦取得
      * @param string $date H010101形式の和暦
-     * @return date「%Y-%m-%d」形式
+     * @return string「%Y-%m-%d」形式
      */
     function getWesternCalendar($date)
     {
@@ -271,8 +271,6 @@ class Tool_Date
      */
     function makeupDateFormat($date)
     {
-        $fixedDate = '';
-
         // 年月日などの各数字は前ゼロであること
         // 年月日などの区切り記号[-,/]、日付の区切り記号[:]は任意
         // 日付と時間の間の空白は任意

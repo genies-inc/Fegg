@@ -156,7 +156,7 @@ class Application
      * アプリケーションサポート言語判定処理
      * configのsupport_languageで設定されている言語コードかどうか判定する
      * @param string $languageCode 言語コード
-     * @return サポート言語: True / サポート言語でない: False
+     * @return boolean サポート言語: True サポート言語でない: False
      */
     private function _isSupportLanguage($languageCode)
     {
@@ -585,7 +585,7 @@ class Application
      * クラスを読み込みインスタンスを返す
      * @param string $file ファイル
      * @param array $parameter
-     * @return 正常時：クラスインスタンス / 異常時：null
+     * @return mixed 正常時：クラスインスタンス 異常時：null
      */
     function getClass($file, $parameter = '')
     {
@@ -593,7 +593,6 @@ class Application
         $tempPath = '';
         $fileName = '';
         $nameSpace = '';
-        $className = '';
        
         foreach ($segments as $key => $value) {
 
@@ -929,7 +928,7 @@ class Application
     function setLanguage($languageCode)
     {
         // 言語コードが指定されていて、サポート言語であることを確認
-        if ($languageCode && $this->_isSupportLanguageCode($languageCode)){
+        if ($languageCode && $this->_isSupportLanguage($languageCode)){
 
             // 言語コードをCookieに保存
             $this->setCookie('FEGG_language_code', $languageCode);
@@ -1003,7 +1002,7 @@ class Application
      */
     function unsetCookie($name)
     {
-        $this->setCookie($name, '', time() - 86500, '/', '', 0, 0);
+        $this->setCookie($name, '', time() - 86500, '/', '');
     }
     
     
