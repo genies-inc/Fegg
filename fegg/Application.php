@@ -344,6 +344,7 @@ class Application
                 $tempPath = '';
                 $nameSpace = '';
                 $fileName = '';
+                $methodName = '';
                 $uriSegments = explode('/', $matches[1][0]);
                 foreach ($uriSegments as $key => $value) {
                     if ($tempPath) {
@@ -423,7 +424,6 @@ class Application
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // code をPHPに変換
-            $pattern = array();
             if (preg_match_all('/ *\{\{\s*code\s+([^\{]+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
                 foreach ($matches[1] as $key => $paramater) {
                     $compiledTemplate = str_replace($matches[0][$key], '<?php ' . $paramater . ' ?>', $compiledTemplate);
@@ -660,7 +660,7 @@ class Application
 
     /**
      * 実行環境から言語コードを取得
-     * @return 言語コード
+     * @return string 言語コード
      */
     function getLanguage()
     {
