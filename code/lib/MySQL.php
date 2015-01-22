@@ -205,6 +205,7 @@ class DB
                 break;
         }
         
+        $returnArray = array();
         $returnArray[0] = $this->_query;
         $returnArray[1] = $this->_parameter;
 
