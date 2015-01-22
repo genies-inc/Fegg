@@ -14,7 +14,17 @@ Feggは、下記の３ファイルで構成されています。
 |/fegg/settings.php|Fegg設定ファイル|
 |/htdocs/index.php|ディスパッチャ|
 
-下記は、Feggによるウェブアプリケーションの最少構成です。
+下記は、Feggによるウェブアプリケーションの最少構成です。（テンプレートエンジン及びデータベース未使用の場合）
+
+|ディレクトリ／ファイル|概要|
+|---|---|
+|/code/application/sample.php|ウェブアプリケーション|
+|/fegg/fegg.php|Fegg本体|
+|/fegg/settings.php|Fegg設定ファイル|
+|/htdocs/.htdocs|Apache設定ファイル|
+|/htdocs/index.php|ディスパッチャ|
+
+テンプレートエンジンを使用した場合、構成はこのようになります。
 
 |ディレクトリ／ファイル|概要|
 |---|---|
