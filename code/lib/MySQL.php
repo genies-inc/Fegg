@@ -730,7 +730,7 @@ class DB
     /**
      * 操作項目設定
      * @param string $query 複数の場合カンマ区切り
-     * @param array $values 連想配列の場合は$queryで指定した項目名と一致するもの、配列の場合は左から順に値を使用
+     * @param array $parameter 連想配列の場合は$queryで指定した項目名と一致するもの、配列の場合は左から順に値を使用
      * @return MySQL メソッドチェーンに対応するため自身のオブジェクト($this)を返す
     */
     function setItem($query, $parameter = '')
