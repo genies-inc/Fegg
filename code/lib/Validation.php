@@ -507,7 +507,7 @@ class Validation {
     /**
      * 必須入力
      * @param string $name 項目名
-     * @param string/array $value 検証値（1次元配列のみ対応）
+     * @param mixed $value 検証値（1次元配列のみ対応）
      * @param string $code エラーメッセージコード
      * @return boolean 正常： true / 異常： false
      */
