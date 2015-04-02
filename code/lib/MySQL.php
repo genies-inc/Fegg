@@ -888,9 +888,9 @@ class DB
                                 }
                                 $tempQuery .= '?';
                                 $this->_whereValues[] = $value;
-                                $index = $index + 1;
                             }
                             $convertedQuery = $convertedQueryFrontPart . $itemName . ' in (' . $tempQuery . ') ' . $convertedQuery;
+                            $index = $index + 1;
                             break;
                         
                         case '<>':
@@ -900,9 +900,9 @@ class DB
                                 }
                                 $tempQuery .= '?';
                                 $this->_whereValues[] = $value;
-                                $index = $index + 1;
                             }
                             $convertedQuery = $convertedQueryFrontPart . $itemName . ' not in (' . $tempQuery . ') ' . $convertedQuery;
+                            $index = $index + 1;
                             break;
                         
                         case 'like':
@@ -913,9 +913,9 @@ class DB
                                 }
                                 $tempQuery .= $itemName . ' Like ? ';
                                 $this->_whereValues[] = $value;
-                                $index = $index + 1;
                             }
                             $convertedQuery = $convertedQueryFrontPart . '(' . $tempQuery . ') ' . $convertedQuery;
+                            $index = $index + 1;
                             break;
                         
                     }
