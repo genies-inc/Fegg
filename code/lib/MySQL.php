@@ -11,7 +11,7 @@
  * @version 0.9.0
  */
 
-class DB
+class MySQL
 {
     private $_app;
     
