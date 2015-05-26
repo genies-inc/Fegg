@@ -7,7 +7,7 @@
  * ドキュメントルートに配置された .htaccess がその制御を行っている。
  * 
  * @author Genies, Inc.
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 // アプリケーションが設置されている位置
@@ -40,6 +40,9 @@ if (file_exists(FEGG_CODE_DIR . '/config/define.php')) {
 $pattern = '/^' . str_replace('/', '\/', FEGG_REWRITEBASE) . '\//';
 $uri = preg_replace($pattern, '', $_SERVER['REQUEST_URI']);
 $uri = preg_replace('/\?.*/', '', $uri);
+
+// システム定数定義
+define('FEGG_APP_BASE', FEGG_REWRITEBASE . '/' . $uri);
 
 // URLセグメンテーション処理
 $feggUri = '';

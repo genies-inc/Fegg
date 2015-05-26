@@ -18,4 +18,5 @@ $validation_error_message['@password_mixed_letters'] = '<strong>%s</strong> は�
 $validation_error_message['@required'] = '<strong>%s</strong> は必ず入力してください';
 $validation_error_message['@tel'] = '<stron>%s</strong> は登録できない形式です';
 $validation_error_message['@time'] = '<stron>%s</strong> の時間では登録できません';
+$validation_error_message['@userId'] = '<strong>%s</strong> は登録できない形式です';
 $validation_error_message['@zipcode'] = '<stron>%s</strong> は登録できない形式です';
