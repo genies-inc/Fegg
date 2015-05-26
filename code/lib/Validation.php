@@ -7,7 +7,7 @@
  * 
  * @access public
  * @author Genies, Inc.
- * @version 1.0.8
+ * @version 1.0.9
  */
 class Validation {
 
@@ -674,13 +674,42 @@ class Validation {
     
 
     /**
+     * アップロードファイル
+     * @param string $name 項目名
+     * @param string $code エラーメッセージコード
+     * @return boolean 正常： true / 異常： false
+     */
+    public function upload($name, $code)
+    {
+        // 既に同じ名称のエラーが設定されている場合処理しない
+        if (isset($this->_errorMessage[$name])) { return false; }
+            
+        // 検証
+        $flag = false;
+        
+        if (isset($_FILES[$name]) && !$_FILES[$name]['error'] && $_FILES[$name]['size'] > 0 ) {
+
+            $flag = true;
+            
+        }
+
+        // エラーメッセージ設定
+        if (!$flag) { 
+            $this->_setError($name, $code); 
+        }
+
+        return $flag;        
+    }
+    
+        
+    /**
      * ユーザーID
      * @param string $name 項目名
      * @param string $value パスワード（半角英数と-_.）
      * @param string $code エラーメッセージコード
      * @return boolean 正常： true / 異常： false
      */
-    public function userId($name, $value, $code = '')
+    public function userid($name, $value, $code = '')
     {
         // 空白時は処理しない
         if (trim($value) == '') { return true; }
