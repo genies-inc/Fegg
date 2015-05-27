@@ -6,7 +6,7 @@
  * 
  * @access public
  * @author Genies, Inc.
- * @version 1.0.0
+ * @version 1.0.1
  */
 class Tool_CSV
 {
@@ -22,9 +22,9 @@ class Tool_CSV
      * @param int length 読み込むデータ長
      * @param string delimiter 区切り文字
      * @param string enclosure 囲み文字
-     * @return ファイル末尾到達、エラー時: FALSE
+     * @return boolean ファイル末尾到達、エラー時: FALSE
      */
-    function _fgetcsv (&$handle, $length = null, $delimiter = ',', $enclosure = '"')
+    private function _fgetcsv (&$handle, $length = null, $delimiter = ',', $enclosure = '"')
     {
         $delimiter = preg_quote($delimiter);
         $enclosure = preg_quote($enclosure);
@@ -32,7 +32,7 @@ class Tool_CSV
         // 改行に対応するため enclosure が偶数になるまで読み込み１行として扱う
         $line = "";
         $eof = false;
-        while ($eof != true) {
+        while ($eof !== true) {
 
             if (empty($length)) {
                 $line .= fgets($handle);
@@ -58,7 +58,8 @@ class Tool_CSV
             preg_match_all($pattern, $csv, $matches);
 
             $items = $matches[1];
-            for($i = 0; $i < count($items); $i++){
+            $itemSize = count($items);
+            for($i = 0; $i < count($itemSize); $i++){
 
                 // 囲み文字を削除、囲み文字内の同一文字の置換
                 $items[$i] = preg_replace('/^'.$enclosure.'(.*)'.$enclosure.'$/s', '$1', $items[$i]);
@@ -77,10 +78,10 @@ class Tool_CSV
     /**
      * CSVファイルを読み込みタイトル行（１行目）連想配列として返す
      *
-     * @param <String> $csvPath CSVファイルのパス及びファイル名
-     * @return <Array> 「0 => 項目名」形式
+     * @param string $csvPath CSVファイルのパス及びファイル名
+     * @return array 「0 => 項目名」形式
      */
-    function getItemName($csvPath)
+    public function getItemName($csvPath)
     {
         $arrItemName = array();
 
@@ -108,7 +109,7 @@ class Tool_CSV
      * @param string $fromEncoding エンコード文字コードを指定　デフォルト:連想配列のキー、内容をutf-8に変換
      * @return array
      */
-    function load($csvPath, $itemNameFlag = true, $toEncoding = 'utf-8', $fromEncoding = 'auto')
+    public function load($csvPath, $itemNameFlag = true, $toEncoding = 'utf-8', $fromEncoding = 'auto')
     {
         // CSVデータ格納用連想配列
         $arrCsv     = array();
@@ -132,7 +133,8 @@ class Tool_CSV
                 if ($lineCounter == 0 && $itemNameFlag) {
 
                     // 1行目を連想配列の項目名として保持
-                    for ($i = 0; $i < count($arrItem); $i++) {
+                    $itemSize = count($arrItem);
+                    for ($i = 0; $i < $itemSize; $i++) {
 
                         if ($toEncoding) {
                             $arrKeyName[$i] = mb_convert_encoding($arrItem[$i], $toEncoding, $fromEncoding);
@@ -148,7 +150,8 @@ class Tool_CSV
                     if ($itemNameFlag) {
 
                         // 項目名を配列Keyとする場合
-                        for ($i = 0; $i < count($arrItem); $i++) {
+                        $itemSize = count($arrItem);
+                        for ($i = 0; $i < $itemSize; $i++) {
 
                             if (!isset($arrKeyName[$i])) {
                                 echo "Undefined Offset: $i at Line " . $lineCounter;
