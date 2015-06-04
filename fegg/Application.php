@@ -328,7 +328,7 @@ class Application
                 '/ *\{\{\s*else\s*if\s*([^\{]+)\s*\}\}\s*/i' => '<?php } else if ($1) { ?>',
                 '/ *\{\{\s*else\s*\}\}\s*/' => '<?php } else { ?>',
                 '/ *\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}\s*/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
-                '/ *\s*\{\{\s*end\s*\}\}\s*/i' => '<?php } ?>',
+                '/ *\s*\{\{\s*end\s*\}\}[^\r\n]*/i' => '<?php } ?>',
                 '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
                 '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
                 '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
