@@ -6,7 +6,7 @@
  * 
  * @access public
  * @author Genies, Inc.
- * @version 1.0.1
+ * @version 1.0.2
  */
 class Tool_CSV
 {
@@ -115,6 +115,9 @@ class Tool_CSV
         $arrCsv     = array();
         $arrKeyName = array();
 
+        // Unable to detect character encodingの警告を防ぐ
+        mb_language("Japanese");
+        
         // CSVファイルの存在確認
         if (file_exists($csvPath)) {
 
