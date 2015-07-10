@@ -144,8 +144,10 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
         // アプリケーションのエラー処理
         if (!(isset($_SERVER['REMOTE_ADDR']) && isset($settings['developer_ip']) && !in_array($_SERVER['REMOTE_ADDR'], $settings['developer_ip']))) {
             $trace = $exception->getTrace();
-            echo '<pre>実行時の変数<br>';
+            echo '<pre><hr>関数内で定義された変数<br>';
             print_r($trace[0]['args'][4]);
+            echo '<hr>$this->page変数<br>';
+            print_r($trace[2]['args'][0][0]->page);
             echo '</pre>';
         }
         exit;
