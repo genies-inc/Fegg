@@ -141,13 +141,23 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
         }
         
     } catch (Exception $exception) {
-        // アプリケーションのエラー処理
+        // アプリケーションで例外をCatchされなかった例外の処理
         if (!(isset($_SERVER['REMOTE_ADDR']) && isset($settings['developer_ip']) && !in_array($_SERVER['REMOTE_ADDR'], $settings['developer_ip']))) {
             $trace = $exception->getTrace();
-            echo '<pre><hr>関数内で定義された変数<br>';
-            print_r($trace[0]['args'][4]);
-            echo '<hr>$this->page変数<br>';
-            print_r($trace[2]['args'][0][0]->page);
+            echo '<pre>';
+            foreach ($trace as $key => $value) {
+                switch ($value['function']) {
+                    case 'errorHandler':
+                        echo '<hr>関数内で定義された変数<br>';
+                        print_r($trace[0]['args'][4]);
+                        break;
+                        
+                    case 'call_user_func_array':
+                        echo '<hr>$this->page変数<br>';
+                        print_r($value['args'][0][0]->page);
+                        break;
+                }
+            }
             echo '</pre>';
         }
         exit;

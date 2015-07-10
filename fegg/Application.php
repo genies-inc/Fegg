@@ -491,17 +491,14 @@ class Application
                 $file = file_get_contents($errorFile);
                 $line = explode("\n", $file);
                 $error .= '<p></p>';
-                $code = '';
                 for ($i = $errorLine - 10; $i <= $errorLine + 10; $i++) {
                     if ($i > 0 && isset($line[$i - 1])) {
                         if ($i == $errorLine) { $error .= '<font color="red">'; }
                         $error .= $i . ': ' . htmlspecialchars($line[$i - 1]) . '<br/>';
-                        $code .= $line[$i - 1];
                         if ($i == $errorLine) { $error .= '</font>'; }
                     }
                 }
             }
-
             echo '<pre>' . $error . '</pre>';
         }
         
