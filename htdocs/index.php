@@ -7,7 +7,7 @@
  * ドキュメントルートに配置された .htaccess がその制御を行っている。
  * 
  * @author Genies, Inc.
- * @version 1.0.2
+ * @version 1.0.3
  */
 
 // アプリケーションが設置されている位置
@@ -141,7 +141,13 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
         }
         
     } catch (Exception $exception) {
-        // アプリケーションで例外をCatchされなかった例外の処理
+        // アプリケーションのエラー処理
+        if (!(isset($_SERVER['REMOTE_ADDR']) && isset($settings['developer_ip']) && !in_array($_SERVER['REMOTE_ADDR'], $settings['developer_ip']))) {
+            $trace = $exception->getTrace();
+            echo '<pre>実行時の変数<br>';
+            print_r($trace[0]['args'][4]);
+            echo '</pre>';
+        }
         exit;
     }
     

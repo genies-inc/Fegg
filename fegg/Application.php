@@ -8,7 +8,7 @@
  * 
  * @access public
  * @author Genies Inc.
- * @version 1.3.0
+ * @version 1.3.1
  */
 class Application
 {
@@ -1055,4 +1055,26 @@ class Application
         }
     }
 }
+
+
+/**
+ * アプリケーションの致命的エラー処理
+ */
+function shutdownHandler()
+{
+    $error = error_get_last();
+    if (FEGG_DEVELOPER && $error) {
+        $source = explode("\r\n", htmlspecialchars(file_get_contents($error['file'])));
+        echo '<pre>';
+        foreach ($source as $key => $value) { 
+            if ($key + 1 == $error['line']) {
+                echo '<font color=red>' . ($key + 1) . ": $value</font><br/>";
+            } else {
+                echo ($key + 1) . ": $value<br/>";
+            }
+        }
+        echo '</pre>';
+    }
+}
+register_shutdown_function('shutdownHandler');
 /* End of file Application.php */
