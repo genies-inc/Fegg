@@ -502,7 +502,7 @@ class Application
                 }
             }
 
-            echo $error;
+            echo '<pre>' . $error . '</pre>';
         }
         
         // 例外発生
