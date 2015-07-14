@@ -38,8 +38,6 @@ Feggは、下記の３ファイルで構成されています。
 
 その他
 ----
-バリデーションやファイル操作などFeggをより便利にするライブラリーを https://github.com/genies-inc/Fegg-tools にまとめています。
-
 さくらインターネットのサーバーに導入する場合、.htaccessを修正する必要があります。
 - php_flag、php_valueが使えないので全てコメントアウトし、コントロールパネルからphp.iniを書き換える（書き換えなくても動作はする）
 - .htaccessの以下の部分を書き換える
@@ -54,3 +52,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.+)$ index.php?/$1/ [L,QSA]
 ```
+
+
+バリデーションやファイル操作などFeggをより便利にするライブラリーを https://github.com/genies-inc/Fegg-tools にまとめています。
