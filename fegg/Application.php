@@ -1062,6 +1062,11 @@ function shutdownHandler()
     $error = error_get_last();
     if (FEGG_DEVELOPER && $error) {
         $source = explode("\r\n", htmlspecialchars(file_get_contents($error['file'])));
+        
+        echo "<p>Debug Information (Developer Only) by Application::shutdownHandler()</p>";
+        echo "Error File: " . $error['file'] . "<br/>";
+        echo "Error Line: " . $error['line'] . "<br/>";
+        echo "Error Message: <font color='red'>" . $error['message'] . "</font><br/>";
         echo '<pre>';
         foreach ($source as $key => $value) { 
             if ($key + 1 == $error['line']) {
