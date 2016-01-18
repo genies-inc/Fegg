@@ -7,7 +7,7 @@
  * ドキュメントルートに配置された .htaccess がその制御を行っている。
  * 
  * @author Genies, Inc.
- * @version 1.0.3
+ * @version 1.0.4
  */
 
 // アプリケーションが設置されている位置
@@ -40,9 +40,6 @@ if (file_exists(FEGG_CODE_DIR . '/config/define.php')) {
 $pattern = '/^' . str_replace('/', '\/', FEGG_REWRITEBASE) . '\//';
 $uri = preg_replace($pattern, '', $_SERVER['REQUEST_URI']);
 $uri = preg_replace('/\?.*/', '', $uri);
-
-// システム定数定義
-define('FEGG_APP_BASE', FEGG_REWRITEBASE . '/' . $uri);
 
 // URLセグメンテーション処理
 $feggUri = '';
@@ -122,6 +119,9 @@ require(FEGG_DIR . '/Application.php');
 // 最終的に呼び出すクラスファイルの存在チェックとrequireを行う
 $classInstance = '';
 if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php')) {
+
+    // 実行対象のアプリケーションのパス（リダイレクトやテンプレート用を想定）
+    define('FEGG_APP_BASE', FEGG_REWRITEBASE . '/' . $tempPath . $fileName);
 
     try {
 
