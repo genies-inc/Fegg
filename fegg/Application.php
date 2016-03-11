@@ -1,28 +1,28 @@
 <?php
 /**
  * Applicationクラス
- * 
+ *
  * Webアプリケーションに必要な様々な処理を提供するクラス。
- * 
+ *
  * 関連ファイル： settings.php
- * 
+ *
  * @access public
  * @author Genies Inc.
- * @version 1.3.1
+ * @version 1.3.2
  */
 class Application
 {
     public $config;
     public $languageCode;
     public $page;
-    
+
     private $_characterCode;
     private $_hidden;
     private $_hiddenForTemplate;
     private $_settings;
     private $_site;
-    
-    
+
+
     /**
      *  constructor
      */
@@ -31,7 +31,7 @@ class Application
         // Fegg設定ファイルを取得
         require(FEGG_DIR . '/settings.php');
         $this->_settings = $settings;
-        
+
         // メンテナンス中の場合はリダイレクト（開発者を除く）
         if (!$this->_settings['run_mode']) {
             if (!in_array($_SERVER['REMOTE_ADDR'], $this->_settings['developer_ip'])) {
@@ -59,14 +59,14 @@ class Application
         } else {
             set_error_handler(array(&$this, "errorHandler"), E_ALL ^E_NOTICE);
         }
-        
+
         // 文字コード設定
         $this->_characterCode = FEGG_DEFAULT_CHARACTER_CODE;
-        
+
         // 言語コード設定
         $this->languageCode = $this->getLanguage();
     }
-    
+
 
     /**
      * 文字コード変換
@@ -89,11 +89,11 @@ class Application
                 $data = mb_convert_encoding($data, $this->_characterCode, FEGG_DEFAULT_CHARACTER_CODE);
             }
         }
-        
+
         return $data;
     }
-    
-    
+
+
     /**
      * リクエストデータ変換
      * @param mixed $data
@@ -110,10 +110,10 @@ class Application
             // 文字コード変換
             $this->_convertCharacterCode($data);
         }
-        
+
         return $data;
     }
-    
+
 
     /**
      * テンプレート用にHiddenを編集
@@ -124,24 +124,24 @@ class Application
     {
         if (is_array($data)) {
             foreach ($data as $key => $value) {
-                
+
                 // 自身を再帰呼び出し
                 $tempKey = $currentKey . "[$key]";
                 $data[$key] = $this->_setHiddenForTemplate($value, $tempKey);
             }
-            
+
         } else if(!empty($currentKey)) {
             $currentKey = preg_replace('/^\[([^\]]+)\]/i', '\1', $currentKey);
             $this->_hiddenForTemplate[$currentKey] = $data;
         }
     }
 
-    
+
     /**
      * 多言語対応判定
-     * @return Boolean True: 多言語対応 False: 単一言語 
+     * @return Boolean True: 多言語対応 False: 単一言語
      */
-    private function _isMultiLanguage() 
+    private function _isMultiLanguage()
     {
         if (isset($this->_settings['default_language']) && $this->_settings['default_language']
          && isset($this->_settings['support_language']) && $this->_settings['support_language']) {
@@ -150,8 +150,8 @@ class Application
             return false;
         }
     }
-    
-    
+
+
     /**
      * アプリケーションサポート言語判定処理
      * configのsupport_languageで設定されている言語コードかどうか判定する
@@ -162,7 +162,7 @@ class Application
     {
         // 言語コードが空白の場合
         if (!$languageCode) { return false; }
-        
+
         // アプリケーションがサポートする言語コードを取得
         $supportLanguage = isset($this->_settings['support_language']) ? $this->_settings['support_language'] : '';
 
@@ -173,7 +173,7 @@ class Application
             return false;
         }
     }
-    
+
 
     /**
      * 指定したタイムゾーンの日付に変換
@@ -191,11 +191,11 @@ class Application
         // timeから変換先タイムゾーンで日付に変換
         date_default_timezone_set($toTimezone);
         $date = date('Y-m-d H:i:s', $time);
-        
+
         return $date;
     }
-    
-    
+
+
     /**
      * 指定されたテンプレートの出力結果を出力
      * @param string $template テンプレートID
@@ -228,7 +228,7 @@ class Application
         if ($this->_isMultiLanguage()) {
             $languageDirectory = '/' . $this->languageCode;
         }
-        
+
         $template = substr($template, 0, 1) == '/' ? substr($template, 1) : $template;
         $templateFile = $this->_settings['template_dir'] . $languageDirectory . '/' . $template . '.'.$this->_settings['template_ext'];
         $cacheFile = $this->_settings['template_cache_dir'] . '/' . str_replace('/', '@', $languageDirectory . '/' . $template) . '.cache.php';
@@ -240,10 +240,10 @@ class Application
         }
         // テンプレートファイルのカレントディレクトリパス
         $currentDir = str_replace( $this->_settings['template_dir'].'/', '', dirname( $templateFile ) ).'/';
-        
+
         // テンプレートが更新されている場合はキャッシュファイルを作成
         if (!file_exists($cacheFile) || filemtime($cacheFile) < filemtime($templateFile)) {
-            
+
             // テンプレート取得
             $compiledTemplate = file_get_contents($templateFile);
 
@@ -268,7 +268,7 @@ class Application
                         exit;
                     }
                     $parentTemplate = file_get_contents($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext']);
-                    
+
                     $tempPattern = array();
                     if (preg_match_all('/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/', $parentTemplate, $parentParts)) {
                         foreach ($parentParts[1] as $key => $value) {
@@ -311,9 +311,9 @@ class Application
             $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo $statement; } ?>"; ';
             $callback .= '} ';
             $function = create_function('$matches', $callback);
-             
+
             $compiledTemplate = preg_replace_callback('/\{\{\s*\$(.+)\s*\}\}\s*/U', $function, $compiledTemplate);
-            
+
             // 基本命令をPHPに変換
             $pattern = array(
                 '/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
@@ -332,7 +332,7 @@ class Application
                 '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
                 '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
                 '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
-                '/ *\{\{\s*base\s*\}\}\s*/i' => '<?php echo FEGG_REWRITEBASE; ?>', 
+                '/ *\{\{\s*base\s*\}\}\s*/i' => '<?php echo FEGG_REWRITEBASE; ?>',
                 '/ *\{\{\*.*\*\}\}\s*/i' => '',
             );
 
@@ -367,9 +367,9 @@ class Application
                     $pattern[$matches[0][0]] = $statement;
                 }
             }
-            
+
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
-            
+
             // checked, selected をPHPに変換
             $pattern = array();
             if (preg_match_all('/ *\{\{\s*(checked|selected)\s+(key\s*=\s*.+\s+value\s*=\s*.+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
@@ -391,9 +391,9 @@ class Application
                     $pattern[$matches[0][$key]] = $statement;
                 }
             }
-            
+
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
-            
+
             // options をPHPに変換
             $pattern = array();
             if (preg_match_all('/ *\{\{\s*options\s+([^\}]+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
@@ -416,7 +416,7 @@ class Application
                     $statement .= 'echo \'>\' . $templateValue[\'value\'] . \'</option>\'; ?>';
                     $statement .= '<?php } ?>';
                     $statement .= '<?php } ?>';
-                    
+
                     $pattern[$matches[0][$key]] = $statement;
                 }
             }
@@ -440,16 +440,16 @@ class Application
             $callback .= '    $element .= "[\'" . "$variable" . "\']"; ';
             $callback .= '} ';
             $callback .= 'return \'$assignedValue\' . $element; ';
-            
+
             $function = create_function('$matches', $callback);
-            
+
             $pattern = array();
             preg_match_all('/\<\?php\s+((?!\?\>).)+\s+\?\>/i', $compiledTemplate, $matches);
 
             foreach ($matches[0] as $key => $value) {
                 $pattern[$value] =  preg_replace_callback('/(\$[\$\w\.]+)/i', $function, $value);
             }
-            
+
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // $variable[$id].id 形式への対応（５次元まで対応）
@@ -457,25 +457,25 @@ class Application
             for($i = 0; $i < 5; $i++) {
                 $compiledTemplate = preg_replace('/(\[*\])\.(\w+)/', '\1[\'\2\']', $compiledTemplate);
             }
-            
+
             // ？＞で終わる場合の改行対応
             $compiledTemplate = preg_replace('/\?>(?:\r\n|\n)/m', '?> ' . "\n", $compiledTemplate);
-            
+
             // キャッシュファイル生成
             file_put_contents($cacheFile, trim($compiledTemplate), LOCK_EX);
             chmod($cacheFile, 0666);
         }
-        
+
         require($cacheFile);
     }
-    
-    
+
+
     /**
      * エラー時の例外発生
      * @param int $errorNo
      * @param string $errorMessage
      * @param string $errorFile
-     * @param int $errorLine 
+     * @param int $errorLine
      */
     function errorHandler($errorNo, $errorMessage, $errorFile, $errorLine)
     {
@@ -501,12 +501,12 @@ class Application
             }
             echo '<pre>' . $error . '</pre>';
         }
-        
+
         // 例外発生
         throw new ErrorException($errorMessage, 0, $errorNo, $errorFile, $errorLine);
     }
-    
-    
+
+
     /**
      * 表示用の変数設定と画面編集
      * @param string $template テンプレートファイル名（.tplは不要）
@@ -515,52 +515,52 @@ class Application
     {
         // テンプレートに渡すデータを設定
         $assign = array();
-        
+
         // ユーザーが定義した定数を設定
         foreach (get_defined_constants(true) as $key => $value) {
-            if ($key == 'user') { 
+            if ($key == 'user') {
                 $assign['define'] = $value;
             }
         }
-        
+
         // クラス名
         $assign['className'] = get_class($this);
-        
+
         // コンフィグ
         $assign['config'] = $this->config;
 
         // 文字コード
         $assign['languageCode'] = $this->languageCode;
-        
+
         // サイト情報
         $assign['site'] = $this->_site;
         $assign['page'] = $this->page;
 
         // リクエストデータ
         $assign['in'] = $this->in();
-        
+
         // Hidden
         $this->_setHiddenForTemplate($this->_hidden);
-        $assign['hiddenForTemplate'] = $this->_hiddenForTemplate;       
-        
+        $assign['hiddenForTemplate'] = $this->_hiddenForTemplate;
+
         // セッション
         $this->setSession('session_id', session_id());
         $this->setSession('session_name', session_name());
         $assign['session'] = $this->getSession();
-        
+
         // Cookie
         $assign['cookie'] = $this->getCookie();
-        
+
         // テンプレート実行
         $contents = $this->fetchTemplate($template, $assign);
-        
+
         // 文字コード変換
         $contents = $this->_convertCharacterCode($contents);
 
         return $contents;
     }
-    
-    
+
+
     /**
      * 指定されたテンプレートの出力結果を文字列として返す
      * @param string $templateFile テンプレートファイル
@@ -576,7 +576,7 @@ class Application
 
         return $contents;
     }
-    
+
 
     /**
      * クラスを読み込みインスタンスを返す
@@ -590,7 +590,7 @@ class Application
         $tempPath = '';
         $fileName = '';
         $nameSpace = '';
-       
+
         foreach ($segments as $key => $value) {
 
             // 同一階層に同一のフォルダ名とファイル名が存在する場合はファイルを優先する
@@ -601,7 +601,7 @@ class Application
             $tempPath .= $value . '/';
             $nameSpace .= ucwords($value) . '_';
         }
-        
+
         if ($fileName) {
             require_once(FEGG_CODE_DIR . "/lib/$file.php");
             $className = $nameSpace . $fileName;
@@ -610,8 +610,8 @@ class Application
             return null;
         }
     }
-    
-    
+
+
     /**
      * Cookie取得
      * @param string $name
@@ -623,7 +623,7 @@ class Application
             return isset($_COOKIE[$name]) ? $_COOKIE[$name] : '';
         } else {
             return $_COOKIE;
-        }        
+        }
     }
 
 
@@ -642,8 +642,8 @@ class Application
         }
         return date($format);
     }
-    
-    
+
+
     /**
      * インスタンス取得
      * @return Application このクラスのインスタンス
@@ -660,7 +660,7 @@ class Application
      */
     function getLanguage()
     {
-        
+
         // URLで指定された言語コード
         $languageCode = isset($_GET['lang']) ? $_GET['lang'] : '';
         if ($this->_isSupportLanguage($languageCode)){
@@ -696,7 +696,7 @@ class Application
         // 実行環境から言語コードが取得できない場合はデフォルト値を返す
         return isset($this->_settings['default_language']) ? $this->_settings['default_language'] : '';
     }
-    
+
 
     /**
      * セッション値取得
@@ -716,7 +716,7 @@ class Application
         }
     }
 
-    
+
     /**
      * アプリケーションの設定値取得
      * @param string $name 設定名
@@ -726,8 +726,8 @@ class Application
     {
         return isset($this->_settings[$name]) ? $this->_settings[$name] : '';
     }
-    
-    
+
+
     /**
      * リダイレクト
      * @param string $url リダイレクト先URL
@@ -746,10 +746,10 @@ class Application
         }
         $url = FEGG_CURRENT_URL . $url;
         header('Location: ' . $url);
-        
+
         exit();
     }
-    
+
 
     /**
      * セッションIDの再発行
@@ -760,16 +760,16 @@ class Application
         if (!session_id()) {
             session_start();
         }
-        
+
         // $_SESSIONを利用する場合のセキュリティ対策
         session_regenerate_id(TRUE);
     }
-    
-    
+
+
     /**
      * コンフィグファイル読み込み
      * @param string $name コンフィグファイル名（.phpは不要）
-     * @param string $languageCode 
+     * @param string $languageCode
      * @return コンフィグ（配列）
      */
     function loadConfig($name, $languageCode = '')
@@ -789,7 +789,7 @@ class Application
         if (file_exists(FEGG_CODE_DIR . "/config/$configFile")) {
             require(FEGG_CODE_DIR . "/config/$configFile");
         }
-        
+
         // 言語別コンフィグ
         if ($this->_isMultiLanguage()) {
             if (file_exists(FEGG_CODE_DIR . "/config/$languageCode/$configFile")) {
@@ -806,8 +806,8 @@ class Application
             exit;
         }
     }
-    
-    
+
+
     /**
      * リクエストデータ取得
      * @param string $name 取得対象のデータ名。省略時は全て取得。
@@ -835,7 +835,7 @@ class Application
                 }
             }
         } else {
-            
+
             // 全データを取得
             if (!$method || $method == 'GET') {
                 foreach ($_GET as $key => $value) { $requestData[$key] = $value; }
@@ -848,7 +848,7 @@ class Application
         // 文字コード、シングル・ダブルクォートを変換
         return $this->_convertRequestData($requestData);
     }
-    
+
 
     /**
      * 文字コード設定
@@ -858,12 +858,12 @@ class Application
     {
         $this->_characterCode = $characterCode;
     }
-    
+
 
     /**
      * Cookieを設定
      * @param string $name Cookie値名称
-     * @param string $value Cookie値 
+     * @param string $value Cookie値
      * @parame string $expire 有効期限（秒で指定、0で現在時刻）
      * @param string $path パス
      */
@@ -879,7 +879,7 @@ class Application
             setcookie($name, $value, $expire, $path, '', false);
         }
     }
-    
+
 
     /**
      * テンプレートのカレントディレクトリを設定
@@ -890,7 +890,7 @@ class Application
         $this->_settings['current_template_dir'] = $dir;
     }
 
-    
+
     /**
      * hiddenにデータを設定
      * @param mixed $name hidden名、もしくは {'key' => value} 型の配列
@@ -907,7 +907,7 @@ class Application
         }
     }
 
-    
+
     /**
      * HTML Headerを設定
      * @param string $header ヘッダー
@@ -916,11 +916,11 @@ class Application
     {
         header($header);
     }
-    
-    
+
+
     /**
      * 言語コード設定
-     * @param string $languageCode 
+     * @param string $languageCode
      */
     function setLanguage($languageCode)
     {
@@ -929,17 +929,17 @@ class Application
 
             // 言語コードをCookieに保存
             $this->setCookie('FEGG_language_code', $languageCode);
-            
+
             // 言語コード設定
             $this->languageCode = $languageCode;
         }
     }
-    
-    
+
+
     /**
      * セッション値設定
      * @param String $name
-     * @param String $value 
+     * @param String $value
      */
     function setSession($name, $value)
     {
@@ -949,8 +949,8 @@ class Application
         }
         $_SESSION[$name] = $value;
     }
-    
-    
+
+
     /**
      * サイト情報設定
      * @param string $id ID
@@ -960,7 +960,7 @@ class Application
     {
         $this->_site[$id] = $value;
     }
-    
+
 
     /**
      * リロード対策用ワンタイムチケット発行
@@ -974,7 +974,7 @@ class Application
         $this->setHidden($ticketName, htmlspecialchars($ticket, ENT_QUOTES, FEGG_DEFAULT_CHARACTER_CODE));
     }
 
-    
+
     /**
      * 画面表示
      * @param string $template テンプレートファイル名（拡張子は不要）
@@ -986,12 +986,12 @@ class Application
 
         // クリックジャッキング対策
         header('X-FRAME-OPTIONS: DENY');
-        
+
         // 画面表示
         echo $contents;
         exit;
     }
-    
+
 
     /**
      * クッキーを削除
@@ -1001,8 +1001,8 @@ class Application
     {
         $this->setCookie($name, '', time() - 86500, '/');
     }
-    
-    
+
+
     /**
      * hiddenのデータを削除（テンプレートタグ {{hidden}} で出力される）
      * @param string $name
@@ -1011,15 +1011,15 @@ class Application
     {
         if ($name) { unset($this->_hidden[$name]); }
     }
-    
-    
+
+
     function unsetSession($name = '')
     {
         // セッションを開始
         if (!session_id()) {
             session_start();
         }
-        
+
         if ($name) {
             unset($_SESSION[$name]);
         } else {
@@ -1027,8 +1027,8 @@ class Application
           session_destroy();
         }
     }
-    
-    
+
+
     /**
      * ワンタイムチケット使用
      * @param string $name
@@ -1038,7 +1038,7 @@ class Application
     {
         $ticketName = 'ticket_' . $name;
         $ticketId = $this->in($ticketName, 'POST');
-        
+
         if (!$ticketId || $this->getSession($ticketName) == '') {
             return false;
         }
@@ -1061,14 +1061,14 @@ function shutdownHandler()
 {
     $error = error_get_last();
     if (FEGG_DEVELOPER && $error) {
-        $source = explode("\r\n", htmlspecialchars(file_get_contents($error['file'])));
-        
+        $source = explode("\n", htmlspecialchars(file_get_contents($error['file'])));
+
         echo "<p>Debug Information (Developer Only) by Application::shutdownHandler()</p>";
         echo "Error File: " . $error['file'] . "<br/>";
         echo "Error Line: " . $error['line'] . "<br/>";
         echo "Error Message: <font color='red'>" . $error['message'] . "</font><br/>";
         echo '<pre>';
-        foreach ($source as $key => $value) { 
+        foreach ($source as $key => $value) {
             if ($key + 1 == $error['line']) {
                 echo '<font color=red>' . ($key + 1) . ": $value</font><br/>";
             } else {
