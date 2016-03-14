@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.3.3
+ * @version 1.3.4
  */
 class Application
 {
@@ -297,7 +297,7 @@ class Application
             $callback .= '    } else if(! $breakLineFlag && strtolower($modifire) == "br") { ';
             $callback .= '        $breakLineFlag = true; ';
             $callback .= '    } else if(strtolower($modifire) == "replace") { ';
-            $callback .= '        $statement = "mb_ereg_replace(" . $parameters[0] . ", " . $parameters[1] . ", " . $statement . ")"; ';
+            $callback .= '        $statement = "mb_ereg_replace(\'" . $parameters[0] . "\', \'" . $parameters[1] . "\', " . $statement . ")"; ';
             $callback .= '    } else { ';
             $callback .= '        $parameter = ""; foreach ($parameters as $value) { $parameter .= "," . $value; } ';
             $callback .= '        $statement = $modifire . "(" . $statement . $parameter . ")"; ';
