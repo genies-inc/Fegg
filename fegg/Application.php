@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.3.2
+ * @version 1.3.3
  */
 class Application
 {
@@ -296,6 +296,8 @@ class Application
             $callback .= '        $htmlSpecialCharsFlag = false; ';
             $callback .= '    } else if(! $breakLineFlag && strtolower($modifire) == "br") { ';
             $callback .= '        $breakLineFlag = true; ';
+            $callback .= '    } else if(strtolower($modifire) == "replace") { ';
+            $callback .= '        $statement = "mb_ereg_replace(" . $parameters[0] . ", " . $parameters[1] . ", " . $statement . ")"; ';
             $callback .= '    } else { ';
             $callback .= '        $parameter = ""; foreach ($parameters as $value) { $parameter .= "," . $value; } ';
             $callback .= '        $statement = $modifire . "(" . $statement . $parameter . ")"; ';
@@ -323,12 +325,12 @@ class Application
                 '/ *\{\{\s*include\s+(\'*[^\s]+\'*)\s*\}\}\s*/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory(\''.$currentDir.'\'); $assignedClass[\'app\']->displayTemplate($1, $assignedValue); ?>',
                 '/ *\{\{\s*include\s+html\s+(\'*[^\s]+\'*)\s*\}\}\s*/i' => '<?php include(FEGG_HTML_DIR . $1); ?>',
                 '/ *\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\{]+)\s*\}\}\s*/i' => '<?php $1 = $2 ?>',
-                '/ *\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}\s*/i' => '<?php if (isset($1) && $1) { ?>',
-                '/ *\{\{\s*if\s+([^\{]+)\s*\}\}\s*/i' => '<?php if ($1) { ?>',
+                '/\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}\s*/i' => '<?php if (isset($1) && $1) { ?>',
+                '/\{\{\s*if\s+([^\{]+)\s*\}\}\s*/i' => '<?php if ($1) { ?>',
                 '/ *\{\{\s*else\s*if\s*([^\{]+)\s*\}\}\s*/i' => '<?php } else if ($1) { ?>',
                 '/ *\{\{\s*else\s*\}\}\s*/' => '<?php } else { ?>',
                 '/ *\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}\s*/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
-                '/ *\s*\{\{\s*end\s*\}\}\s*[\r\n]*/i' => '<?php } ?>',
+                '/ *\s*\{\{\s*end\s*\}\}/i' => '<?php } ?>',
                 '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
                 '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
                 '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
