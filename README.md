@@ -21,7 +21,7 @@ Feggは、下記の３ファイルで構成されています。
 |/code/application/sample.php|ウェブアプリケーション|
 |/fegg/fegg.php|Fegg本体|
 |/fegg/settings.php|Fegg設定ファイル|
-|/htdocs/.htdocs|Apache設定ファイル|
+|/htdocs/.htaccess|Apache設定ファイル|
 |/htdocs/index.php|ディスパッチャ|
 
 テンプレートエンジンを使用した場合、構成はこのようになります。
@@ -29,11 +29,11 @@ Feggは、下記の３ファイルで構成されています。
 |ディレクトリ／ファイル|概要|
 |---|---|
 |/code/application/sample.php|ウェブアプリケーション|
-|/code/data/cache/template|テンプレートキャシュディレクトリ（書込権限必要）|
+|/code/template/_cache|テンプレートキャシュディレクトリ（書込権限必要）|
 |/code/template/sample.tpl|テンプレートファイル|
 |/fegg/fegg.php|Fegg本体|
 |/fegg/settings.php|Fegg設定ファイル|
-|/htdocs/.htdocs|Apache設定ファイル|
+|/htdocs/.htaccess|Apache設定ファイル|
 |/htdocs/index.php|ディスパッチャ|
 
 その他
