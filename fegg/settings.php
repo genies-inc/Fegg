@@ -1,10 +1,10 @@
 <?php
 /**
  * Fegg 基本設定
- * 
+ *
  * サーバー環境、実行状況に合わせて変更する必要のある設定値を定義。
  * ほぼ変更のない値はdefineで定数定義し、アプリケーション毎に見直す必要がある値は$settingsとして変数定義している。
- 
+
  * @author Genies, Inc.
  * @version 1.0.2
  */
@@ -35,7 +35,7 @@ $settings['maintenance_page_url'] = '';
 
 // 開発者IPアドレス（複数指定可）
 $settings['developer_ip'] = array('210.138.248.229');
-    
+
 // デフォルト言語コード（１コードのみ指定。多言語処理しない場合は省略可）
 #$settings['default_language'] = 'ja';
 
@@ -45,7 +45,7 @@ $settings['developer_ip'] = array('210.138.248.229');
 // テンプレートディレクトリ
 $settings['template_dir'] = FEGG_CODE_DIR . '/template';
 $settings['template_ext'] = 'tpl';
-$settings['template_cache_dir'] = FEGG_CODE_DIR . '/data/cache/template';
+$settings['template_cache_dir'] = FEGG_CODE_DIR . '/template/_cache';
 
 // グローバルコンフィグディレクトリ（省略可）
 $settings['global_config_dir'] = '';
