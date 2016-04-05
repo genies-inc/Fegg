@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.3.4
+ * @version 1.3.5
  */
 class Application
 {
@@ -1062,7 +1062,7 @@ class Application
 function shutdownHandler()
 {
     $error = error_get_last();
-    if (FEGG_DEVELOPER && $error) {
+    if (defined('FEGG_DEVELOPER') && FEGG_DEVELOPER && $error) {
         $source = explode("\n", htmlspecialchars(file_get_contents($error['file'])));
 
         echo "<p>Debug Information (Developer Only) by Application::shutdownHandler()</p>";
