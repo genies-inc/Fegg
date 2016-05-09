@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.3.6
+ * @version 1.3.7
  */
 class Application
 {
@@ -1063,21 +1063,22 @@ function shutdownHandler()
 {
     $error = error_get_last();
     if (defined('FEGG_DEVELOPER') && FEGG_DEVELOPER && $error) {
-        $source = explode("\n", htmlspecialchars(file_get_contents($error['file'])));
-
         echo "<p>Debug Information (Developer Only) by Application::shutdownHandler()</p>";
         echo "Error File: " . $error['file'] . "<br/>";
         echo "Error Line: " . $error['line'] . "<br/>";
         echo "Error Message: <font color='red'>" . $error['message'] . "</font><br/>";
-        echo '<pre>';
-        foreach ($source as $key => $value) {
-            if ($key + 1 == $error['line']) {
-                echo '<font color=red>' . ($key + 1) . ": $value</font><br/>";
-            } else {
-                echo ($key + 1) . ": $value<br/>";
+        if (file_exists($error['file'])) {
+            $source = explode("\n", htmlspecialchars(file_get_contents($error['file'])));
+            echo '<pre>';
+            foreach ($source as $key => $value) {
+                if ($key + 1 == $error['line']) {
+                    echo '<font color=red>' . ($key + 1) . ": $value</font><br/>";
+                } else {
+                    echo ($key + 1) . ": $value<br/>";
+                }
             }
+            echo '</pre>';
         }
-        echo '</pre>';
     }
 }
 register_shutdown_function('shutdownHandler');
