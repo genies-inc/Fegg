@@ -22,6 +22,89 @@ class Application
     private $_settings;
     private $_site;
 
+    // テンプレートタグ
+    private $_template_patterns = array(
+        'section' => array(
+            'pattern' => '/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/i',
+            'replace' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
+        ),
+        'end_section' => array(
+            'pattern' => '/ *\{\{\s*end section (\w+)\s*\}\}\s*/i',
+            'replace' => '<?php }} section_$1($assignedValue); ?>',
+        ),
+        'head' => array(
+            'pattern' => '/ *\{\{\s*head\s*\}\}\s*/i',
+            'replace' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->setCurrentTemplateDirectory($value[\'dir\']); $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue); } } ?>',
+        ),
+        'include_head' => array(
+            'pattern' => '/ *\{\{\s*include\s+head\s+(\'*[^\s]+\'*)\s*\}\}\s*/i',
+            'replace' => '<?php if (isset($head)) { array_unshift($head, array( \'file\'=> $1, \'dir\'=>\'%currentDir%\' )); } else { $head[] = array( \'file\'=> $1, \'dir\'=>\'%currentDir%\' ); } ?>',
+        ),
+        'foot' => array(
+            'pattern' => '/ *\{\{\s*foot\s*\}\}\s*/i',
+            'replace' => '<?php if (isset($foot)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($foot as $key => $value) { $assignedClass[\'app\']->setCurrentTemplateDirectory($value[\'dir\']); $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue); } } ?>',
+        ),
+        'include_foot' => array(
+            'pattern' => '/ *\{\{\s*include\s+foot\s+(\'*[^\s]+\'*)\s*\}\}\s*/i',
+            'replace' => '<?php if (isset($foot)) { array_unshift($foot, array( \'file\'=> $1, \'dir\'=>\'%currentDir%\' )); } else { $foot[] = array( \'file\'=> $1, \'dir\'=>\'%currentDir%\' ); } ?>',
+        ),
+        'include' => array(
+            'pattern' => '/ *\{\{\s*include\s+(\'*[^\s]+\'*)\s*\}\}\s*/i',
+            'replace' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory(\'%currentDir%\'); $assignedClass[\'app\']->displayTemplate($1, $assignedValue); ?>',
+        ),
+        'include_html' => array(
+            'pattern' => '/ *\{\{\s*include\s+html\s+(\'*[^\s]+\'*)\s*\}\}\s*/i',
+            'replace' => '<?php include(FEGG_HTML_DIR . $1); ?>',
+        ),
+        'assign' => array(
+            'pattern' => '/ *\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\{]+)\s*\}\}\s*/i',
+            'replace' => '<?php $1 = $2 ?>',
+        ),
+        'if_var' => array(
+            'pattern' => '/\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}\s*/i',
+            'replace' => '<?php if (isset($1) && $1) { ?>',
+        ),
+        'if' => array(
+            'pattern' => '/\{\{\s*if\s+([^\{]+)\s*\}\}\s*/i',
+            'replace' => '<?php if ($1) { ?>',
+        ),
+        'else_if' => array(
+            'pattern' => '/ *\{\{\s*else\s*if\s*([^\{]+)\s*\}\}\s*/i',
+            'replace' => '<?php } else if ($1) { ?>',
+        ),
+        'else' => array(
+            'pattern' => '/ *\{\{\s*else\s*\}\}\s*/',
+            'replace' => '<?php } else { ?>',
+        ),
+        'loop' => array(
+            'pattern' => '/ *\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}\s*/i',
+            'replace' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
+        ),
+        'end' => array(
+            'pattern' => '/ *\s*\{\{\s*end\s*\}\}/i',
+            'replace' => '<?php } ?>',
+        ),
+        'foreach' => array(
+            'pattern' => '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i',
+            'replace' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
+        ),
+        'end_foreach' => array(
+            'pattern' => '/ *\{\{\s*end foreach\s*\}\}\s*/i',
+            'replace' => '<?php $foreachIndex++; } ?>',
+        ),
+        'hidden' => array(
+            'pattern' => '/ *\{\{\s*hidden\s*\}\}\s*/i',
+            'replace' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
+        ),
+        'base' => array(
+            'pattern' => '/ *\{\{\s*base\s*\}\}\s*/i',
+            'replace' => '<?php echo FEGG_REWRITEBASE; ?>',
+        ),
+        'comment' => array(
+            'pattern' => '/ *\{\{\*.*\*\}\}\s*/i',
+            'replace' => '',
+        ),
+    );
 
     /**
      *  constructor
@@ -197,6 +280,61 @@ class Application
 
 
     /**
+     * テンプレートタグリスト内の変数を書き換える
+     * @param string &$pattern 書き換えるテンプレートタグ
+     * @param integer $key テンプレートタグのインデックス
+     * @param array $replace 書き換えるデータ（keyが変更前、valueが変更後）
+     */
+    function replacePattern(&$pattern, $key, $replace)
+    {
+        foreach($replace as $from => $to) {
+            $pattern = str_replace($from, $to, $pattern);
+        }
+    }
+
+
+    /**
+     * テンプレートタグリストに追加する
+     * @param string $name テンプレートタグ名
+     * @param string $pattern テンプレートタグパターン
+     * @param string $replace 置換するプログラムコード
+     */
+    function appendPattern($name, $pattern, $replace)
+    {
+        $this->_template_patterns[$name] = array(
+            'pattern' => $pattern,
+            'replace' => $replace,
+        );
+    }
+
+
+    /**
+     * テンプレートタグを削除する
+     * @param string $name テンプレートタグ名
+     */
+    function removePattern($name)
+    {
+        if(isset($this->_template_patterns[$name])) {
+            unset($this->_template_patterns[$name]);
+        }
+    }
+
+
+    /**
+     * テンプレートタグを配列で取得する
+     * @return array テンプレートタグリスト
+     */
+    function getPatternList()
+    {
+        $result = array();
+        foreach($this->_template_patterns as $pattern) {
+            $result[$pattern['pattern']] = $pattern['replace'];
+        }
+        return $result;
+    }
+
+
+    /**
      * 指定されたテンプレートの出力結果を出力
      * @param string $template テンプレートID
      * @param array $assignedValue 表示データ
@@ -209,7 +347,9 @@ class Application
             $template = $this->_settings['current_template_dir'].$template;
         }
         // 相対パスの指定を削除する
-        if (is_numeric(strpos($template, '.'))) {
+        if( strpos( $template, '.' ) === FALSE ) {
+            $template = $template;
+        } else {
             $stack = array();
             foreach( explode( '/', $template ) as $path ) {
                 if( $path === '..' ) {
@@ -239,7 +379,7 @@ class Application
             return;
         }
         // テンプレートファイルのカレントディレクトリパス
-        $currentDir = str_replace( $this->_settings['template_dir'].'/', '', dirname( $templateFile ) ).'/';
+        $currentDir = str_replace( $this->_settings['template_dir'].$languageDirectory, '', dirname( $templateFile ) ).'/';
 
         // テンプレートが更新されている場合はキャッシュファイルを作成
         if (!file_exists($cacheFile) || filemtime($cacheFile) < filemtime($templateFile)) {
@@ -263,11 +403,11 @@ class Application
                     }
 
                     // 継承元テンプレートに同名のsectionが存在する場合は定義のみ行う
-                    if (!file_exists($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext'])) {
-                        echo "Can't extend: " . $this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext'];
+                    if (!file_exists($this->_settings['template_dir'] . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext'])) {
+                        echo "Can't extend: " . $this->_settings['template_dir'] . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext'];
                         exit;
                     }
-                    $parentTemplate = file_get_contents($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext']);
+                    $parentTemplate = file_get_contents($this->_settings['template_dir'] . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext']);
 
                     $tempPattern = array();
                     if (preg_match_all('/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/', $parentTemplate, $parentParts)) {
@@ -317,27 +457,8 @@ class Application
             $compiledTemplate = preg_replace_callback('/\{\{\s*\$(.+)\s*\}\}\s*/U', $function, $compiledTemplate);
 
             // 基本命令をPHPに変換
-            $pattern = array(
-                '/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
-                '/ *\{\{\s*end section (\w+)\s*\}\}\s*/i' => '<?php }} section_$1($assignedValue); ?>',
-                '/ *\{\{\s*head\s*\}\}\s*/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->setCurrentTemplateDirectory($value[\'dir\']); $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue); } } ?>',
-                '/ *\{\{\s*include\s+head\s+(\'*[^\s]+\'*)\s*\}\}\s*/i' => '<?php if (isset($head)) { array_unshift($head, array( \'file\'=> $1, \'dir\'=>\''.$currentDir.'\' )); } else { $head[] = array( \'file\'=> $1, \'dir\'=>\''.$currentDir.'\' ); } ?>',
-                '/ *\{\{\s*include\s+(\'*[^\s]+\'*)\s*\}\}\s*/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory(\''.$currentDir.'\'); $assignedClass[\'app\']->displayTemplate($1, $assignedValue); ?>',
-                '/ *\{\{\s*include\s+html\s+(\'*[^\s]+\'*)\s*\}\}\s*/i' => '<?php include(FEGG_HTML_DIR . $1); ?>',
-                '/ *\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\{]+)\s*\}\}\s*/i' => '<?php $1 = $2 ?>',
-                '/\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}\s*/i' => '<?php if (isset($1) && $1) { ?>',
-                '/\{\{\s*if\s+([^\{]+)\s*\}\}\s*/i' => '<?php if ($1) { ?>',
-                '/ *\{\{\s*else\s*if\s*([^\{]+)\s*\}\}\s*/i' => '<?php } else if ($1) { ?>',
-                '/ *\{\{\s*else\s*\}\}\s*/' => '<?php } else { ?>',
-                '/ *\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}\s*/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
-                '/ *\s*\{\{\s*end\s*\}\}/i' => '<?php } ?>',
-                '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
-                '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
-                '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
-                '/ *\{\{\s*base\s*\}\}\s*/i' => '<?php echo FEGG_REWRITEBASE; ?>',
-                '/ *\{\{\*.*\*\}\}\s*/i' => '',
-            );
-
+            $pattern = $this->getPatternList();
+            array_walk($pattern, array($this, 'replacePattern'), array('%currentDir%'=>$currentDir));
             $compiledTemplate = preg_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // call をPHPに変換
