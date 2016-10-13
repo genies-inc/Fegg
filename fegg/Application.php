@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.3.8
+ * @version 1.3.9
  */
 class Application
 {
@@ -21,6 +21,7 @@ class Application
     private $_hiddenForTemplate;
     private $_settings;
     private $_site;
+    private $_basicAuthFlag;
 
 
     /**
@@ -244,6 +245,9 @@ class Application
      */
     function displayPage($template)
     {
+        // Basic認証の処理対象に設定
+        $this->_basicAuthFlag = 'true';
+
         // 画面編集
         $contents = $this->fetchPage($template);
 
@@ -528,8 +532,8 @@ class Application
             chmod($cacheFile, 0666);
         }
 
-        // Basic認証が「すべて認証」に設定されているかを判定
-        if ($this->_settings['basic_auth_scope'] == 1) {
+        // Basic認証処理可能（fetchTempalte 経由ではない）で「すべて認証」に設定されているかを判定
+        if (($this->_basicAuthFlag == 'true' || $this->_basicAuthFlag == '') && $this->_settings['basic_auth_scope'] == 1) {
             $this->basicAuth();
         }
 
@@ -636,6 +640,9 @@ class Application
      */
     function fetchTemplate($templateFile, $assignedValue = array())
     {
+        // 直接コールされている場合はBasic認証の対象外に
+        $this->_basicAuthFlag = $this->_basicAuthFlag != '' ? $this->_basicAuthFlag : 'false';
+
         ob_start();
         $this->displayTemplate($templateFile, $assignedValue);
         $contents = ob_get_contents();
