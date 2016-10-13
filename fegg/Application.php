@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.3.7
+ * @version 1.3.8
  */
 class Application
 {
@@ -176,6 +176,46 @@ class Application
 
 
     /**
+     * Basic認証
+     * 認証範囲は以下の通り。
+     *   0：認証しない
+     *   1：すべて認証（displayTemplate で処理。Webアクセス時のみで静的ページを除く。）
+     *   2：$this->basicAuth() を記述した部分のみ認証
+     *
+     * PHPがCGI版の場合「RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]」を.htaccessに追記
+     *
+     * @param  string $user Basic認証ユーザーの個別指定
+     * @param  string $password Basic認証パスワードの個別指定
+     */
+    function basicAuth($user = '', $password = '')
+    {
+        // 認証範囲
+        $scope = isset($this->_settings['basic_auth_scope']) && $this->_settings['basic_auth_scope'] ? $this->_settings['basic_auth_scope'] : 0;
+        if ($scope > 0) {
+
+            // 認証
+            $user = $user ? $user : $this->_settings['basic_auth_user'];
+            $password = $password ? $password : $this->_settings['basic_auth_password'];
+
+            if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) || !$_SERVER['PHP_AUTH_USER']
+             || $_SERVER['PHP_AUTH_USER'] <> $user || $_SERVER['PHP_AUTH_PW'] <> $password)
+            {
+                // メッセージの設定
+                $authMessage = isset($this->_settings['basic_auth_message']) && $this->_settings['basic_auth_message'] ? $this->_settings['basic_auth_message'] : "Enter username and password.";
+                $authErrorMessage = isset($this->_settings['basic_auth_error_message']) && $this->_settings['basic_auth_error_message'] ? $this->_settings['basic_auth_message'] : "Authorization Required";
+
+                // 認証前、認証失敗時
+                header('HTTP/1.0 401 Unauthorized');
+                header('WWW-Authenticate: Basic realm=' . $authMessage);
+                header('Content-Type: text/plain; charset=utf-8');
+                echo $authErrorMessage;
+                exit;
+            }
+        }
+    }
+
+
+    /**
      * 指定したタイムゾーンの日付に変換
      * @param string $date 変換元日付
      * @param string $fromTimezone 変換元タイムゾーン（Asia/Tokyo形式）
@@ -193,6 +233,26 @@ class Application
         $date = date('Y-m-d H:i:s', $time);
 
         return $date;
+    }
+
+
+
+
+    /**
+     * 画面表示
+     * @param string $template テンプレートファイル名（拡張子は不要）
+     */
+    function displayPage($template)
+    {
+        // 画面編集
+        $contents = $this->fetchPage($template);
+
+        // クリックジャッキング対策
+        header('X-FRAME-OPTIONS: DENY');
+
+        // 画面表示
+        echo $contents;
+        exit;
     }
 
 
@@ -330,7 +390,7 @@ class Application
                 '/ *\{\{\s*else\s*if\s*([^\{]+)\s*\}\}\s*/i' => '<?php } else if ($1) { ?>',
                 '/ *\{\{\s*else\s*\}\}\s*/' => '<?php } else { ?>',
                 '/ *\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}\s*/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
-                '/ *\s*\{\{\s*end\s*\}\}/i' => '<?php } ?>',
+                '/\{\{\s*end\s*\}\}/i' => '<?php } ?>',
                 '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
                 '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
                 '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
@@ -466,6 +526,11 @@ class Application
             // キャッシュファイル生成
             file_put_contents($cacheFile, trim($compiledTemplate), LOCK_EX);
             chmod($cacheFile, 0666);
+        }
+
+        // Basic認証が「すべて認証」に設定されているかを判定
+        if ($this->_settings['basic_auth_scope'] == 1) {
+            $this->basicAuth();
         }
 
         require($cacheFile);
@@ -974,24 +1039,6 @@ class Application
         $ticket = md5(uniqid() . mt_rand());
         $this->setSession($ticketName, $ticket);
         $this->setHidden($ticketName, htmlspecialchars($ticket, ENT_QUOTES, FEGG_DEFAULT_CHARACTER_CODE));
-    }
-
-
-    /**
-     * 画面表示
-     * @param string $template テンプレートファイル名（拡張子は不要）
-     */
-    function displayPage($template)
-    {
-        // 画面編集
-        $contents = $this->fetchPage($template);
-
-        // クリックジャッキング対策
-        header('X-FRAME-OPTIONS: DENY');
-
-        // 画面表示
-        echo $contents;
-        exit;
     }
 
 

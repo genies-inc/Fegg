@@ -6,7 +6,7 @@
  * ほぼ変更のない値はdefineで定数定義し、アプリケーション毎に見直す必要がある値は$settingsとして変数定義している。
 
  * @author Genies, Inc.
- * @version 1.0.3
+ * @version 1.0.4
  */
 // 定数定義（基本的に変更の必要がない値を定義）
 // 制御
@@ -53,5 +53,12 @@ $settings['template_cache_dir'] = FEGG_CODE_DIR . '/template/_cache';
 
 // グローバルコンフィグディレクトリ（省略可）
 $settings['global_config_dir'] = '';
+
+// Basic認証範囲（0:認証しない 1:すべて認証 2:部分認証）
+$settings['basic_auth_scope'] = 0;
+
+// Basic認証アカウント
+$settings['basic_auth_user'] = '';
+$settings['basic_auth_password'] = '';
 
 /* End of file settings.php */
