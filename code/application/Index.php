@@ -12,7 +12,7 @@ class Index extends Application
     function __construct() {
         parent::__construct();
     }
-    
+
 
     /**
      * 初期処理
@@ -33,7 +33,7 @@ class Index extends Application
     function _common()
     {
     }
-    
+
 
     /**
      * 初期ページ表示
@@ -44,9 +44,9 @@ class Index extends Application
     {
         // 共通処理
         $this->_common();
-        
+
         // 画面表示
-        $this->displayPage('index');
+        $this->displayPage('index/index');
     }
 }
 /* End Of File: Index.php */
