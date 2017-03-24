@@ -947,7 +947,7 @@ class Application
         $bounceto = isset($options['bounceto']) ? $options['bounceto'] : $from;
 
         // mimeエンコード用無名関数
-        $mime = function($text, $length = 24) {
+        $mime = function($text, $length = 99999) {
             $index = 0;
             $encoded = '';
             while ($index * $length <= mb_strlen($text)) {
@@ -959,8 +959,8 @@ class Application
         };
 
         // 宛先
-        $to = isset($options['to_name']) ? $mime($options['to_name'], 9999) . " <{$to}>" : $to;
-        $from = isset($options['from_name']) ? $mime($options['from_name'], 9999) . " <{$from}>" : $from;
+        $to = isset($options['to_name']) ? $mime($options['to_name']) . " <{$to}>" : $to;
+        $from = isset($options['from_name']) ? $mime($options['from_name']) . " <{$from}>" : $from;
 
         // ヘッダー
         $header = '';
@@ -970,12 +970,12 @@ class Application
         $header .= "Reply-To: {$bounceto}\n";
 
         // タイトル
-        $subject = $mime($subject);
+        $subject = $mime($subject, 24);
 
         // 本文
         $body = '';
         $body .= "--{$boundary}\n";
-        if (!isset($options['html']) && $options['html']) {
+        if (!isset($options['html']) || $options['html'] != true) {
             // テキスト
             $body .= "Content-Type: text/plain; charset=ISO-2022-JP; Content-Transfer-Encoding: 7bit\n\n";
             $body .= mb_convert_encoding($message, 'ISO-2022-JP', FEGG_DEFAULT_CHARACTER_CODE) . "\n\n";
