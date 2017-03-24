@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.3.10
+ * @version 1.4.0
  */
 class Application
 {
@@ -921,6 +921,86 @@ class Application
 
         // 文字コード、シングル・ダブルクォートを変換
         return $this->_convertRequestData($requestData);
+    }
+
+
+    /**
+     * メール送信
+     * テキスト、HTML、ファイル添付に対応したメール送信
+     * オプションに指定した連想配列のキーで以下の設定が可能
+     * 　'from_name' : 送信者名
+     * 　'to_name' : 宛先者名
+     * 　'html' : trueで本文をHTMLとして送信
+     * 　'file' : 連想配列で指定（file => 'ファイルパス', 'name' => 'ファイル名'）
+     * 　　例）$options['file'] => array(0 => array('file' => 'path-to-file', 'name' => 'an attached file'), 1 => array(...));
+     *
+     * @param  string $to 送信先メールアドレス
+     * @param  string $subject タイトル
+     * @param  string $message 本文 / HTML
+     * @param  string $from 送信元メールアドレス
+     * @param  array $options オプション
+     * @return int mail()関数の返値
+     */
+    function mail($to, $subject, $message, $from, $options = array())
+    {
+        $boundary = 'boundary_' . md5(rand());
+        $bounceto = isset($options['bounceto']) ? $options['bounceto'] : $from;
+
+        // mimeエンコード用無名関数
+        $mime = function($text, $length = 24) {
+            $index = 0;
+            $encoded = '';
+            while ($index * $length <= mb_strlen($text)) {
+                $encoded .= $encoded ? "\n" : '';
+                $encoded .= "=?ISO-2022-JP?B?" . base64_encode(mb_convert_encoding(mb_substr($text, $index * $length, $length), 'ISO-2022-JP', FEGG_DEFAULT_CHARACTER_CODE)) . "?=";
+                $index = $index + 1;
+            }
+            return $encoded;
+        };
+
+        // 宛先
+        $to = isset($options['to_name']) ? $mime($options['to_name'], 9999) . " <{$to}>" : $to;
+        $from = isset($options['from_name']) ? $mime($options['from_name'], 9999) . " <{$from}>" : $from;
+
+        // ヘッダー
+        $header = '';
+        $header .= "From: {$from}\n";
+        $header .= "MIME-Version: 1.0\n";
+        $header .= "Content-Type: Multipart/Mixed; boundary=\"{$boundary}\"\n\n";
+        $header .= "Reply-To: {$bounceto}\n";
+
+        // タイトル
+        $subject = $mime($subject);
+
+        // 本文
+        $body = '';
+        $body .= "--{$boundary}\n";
+        if (!isset($options['html']) && $options['html']) {
+            // テキスト
+            $body .= "Content-Type: text/plain; charset=ISO-2022-JP; Content-Transfer-Encoding: 7bit\n\n";
+            $body .= mb_convert_encoding($message, 'ISO-2022-JP', FEGG_DEFAULT_CHARACTER_CODE) . "\n\n";
+        } else {
+            // HTML
+            $body .= "Content-Type: text/html; charset=ISO-2022-JP; Content-Transfer-Encoding: quoted-printable\n\n";
+            $body .= mb_convert_encoding(quoted_printable_decode($message), FEGG_DEFAULT_CHARACTER_CODE, "ISO-2022-JP") . "\n\n";
+        }
+
+        // 添付ファイル
+        if (isset($options['file']) && is_array($options['file'])) {
+            foreach ($options['file'] as $key => $value) {
+                if (file_exists($value['file'])) {
+                    $body .= "--" . $boundary . "\n";
+                    $name = $mime(isset($value['name']) ? $value['name'] : basename($value['file']));
+                    $body .= "Content-Type: application/octet-stream ; name=\"{$name}\"\n";
+                    $body .= "Content-Disposition: attachment; filename=\"{$name}\"\n";
+                    $body .= "Content-Transfer-Encoding: base64\n\n";
+                    $body .= chunk_split(base64_encode(file_get_contents($value['file'])))."\n";
+                }
+            }
+        }
+
+        // メール送信
+        return mail($to, $subject, $body, $header);
     }
 
 
