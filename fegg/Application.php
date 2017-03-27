@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.4.0
+ * @version 1.4.2
  */
 class Application
 {
@@ -382,24 +382,24 @@ class Application
 
             // 基本命令をPHPに変換
             $pattern = array(
-                '/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
-                '/ *\{\{\s*end section (\w+)\s*\}\}\s*/i' => '<?php }} section_$1($assignedValue); ?>',
-                '/ *\{\{\s*head\s*\}\}\s*/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->setCurrentTemplateDirectory($value[\'dir\']); $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue); } } ?>',
-                '/ *\{\{\s*include\s+head\s+(\'*[^\s]+\'*)\s*\}\}\s*/i' => '<?php if (isset($head)) { array_unshift($head, array( \'file\'=> $1, \'dir\'=>\''.$currentDir.'\' )); } else { $head[] = array( \'file\'=> $1, \'dir\'=>\''.$currentDir.'\' ); } ?>',
-                '/ *\{\{\s*include\s+(\'*[^\s]+\'*)\s*\}\}\s*/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory(\''.$currentDir.'\'); $assignedClass[\'app\']->displayTemplate($1, $assignedValue); ?>',
-                '/ *\{\{\s*include\s+html\s+(\'*[^\s]+\'*)\s*\}\}\s*/i' => '<?php include(FEGG_HTML_DIR . $1); ?>',
-                '/ *\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\{]+)\s*\}\}\s*/i' => '<?php $1 = $2 ?>',
-                '/\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}\s*/i' => '<?php if (isset($1) && $1) { ?>',
-                '/\{\{\s*if\s+([^\{]+)\s*\}\}\s*/i' => '<?php if ($1) { ?>',
-                '/ *\{\{\s*else\s*if\s*([^\{]+)\s*\}\}\s*/i' => '<?php } else if ($1) { ?>',
-                '/ *\{\{\s*else\s*\}\}\s*/' => '<?php } else { ?>',
-                '/ *\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}\s*/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
+                '/\{\{\s*section\s+(\w+)\s*\}\}/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
+                '/\{\{\s*end section (\w+)\s*\}\}/i' => '<?php }} section_$1($assignedValue); ?>',
+                '/\{\{\s*head\s*\}\}/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->setCurrentTemplateDirectory($value[\'dir\']); $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue); } } ?>',
+                '/\{\{\s*include\s+head\s+(\'*[^\s]+\'*)\s*\}\}/i' => '<?php if (isset($head)) { array_unshift($head, array( \'file\'=> $1, \'dir\'=>\''.$currentDir.'\' )); } else { $head[] = array( \'file\'=> $1, \'dir\'=>\''.$currentDir.'\' ); } ?>',
+                '/\{\{\s*include\s+(\'*[^\s]+\'*)\s*\}\}/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory(\''.$currentDir.'\'); $assignedClass[\'app\']->displayTemplate($1, $assignedValue); ?>',
+                '/\{\{\s*include\s+html\s+(\'*[^\s]+\'*)\s*\}\}/i' => '<?php include(FEGG_HTML_DIR . $1); ?>',
+                '/\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\}]+)\s*\}\}/i' => '<?php $1 = $2 ?>',
+                '/\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}/i' => '<?php if (isset($1) && $1) { ?>',
+                '/\{\{\s*if\s+([^\{]+)\s*\}\}/i' => '<?php if ($1) { ?>',
+                '/\{\{\s*else\s*if\s*([^\{]+)\s*\}\}/i' => '<?php } else if ($1) { ?>',
+                '/\{\{\s*else\s*\}\}/' => '<?php } else { ?>',
+                '/\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
                 '/\{\{\s*end\s*\}\}/i' => '<?php } ?>',
-                '/ *\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}\s*/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
-                '/ *\{\{\s*end foreach\s*\}\}\s*/i' => '<?php $foreachIndex++; } ?>',
-                '/ *\{\{\s*hidden\s*\}\}\s*/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
-                '/ *\{\{\s*base\s*\}\}\s*/i' => '<?php echo FEGG_REWRITEBASE; ?>',
-                '/ *\{\{\*.*\*\}\}\s*/i' => '',
+                '/\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
+                '/\{\{\s*end foreach\s*\}\}/i' => '<?php $foreachIndex++; } ?>',
+                '/\{\{\s*hidden\s*\}\}/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
+                '/\{\{\s*base\s*\}\}/i' => '<?php echo FEGG_REWRITEBASE; ?>',
+                '/\{\{\*.*\*\}\}/i' => '',
             );
 
             $compiledTemplate = preg_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
