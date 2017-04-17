@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.4.2
+ * @version 1.4.3
  */
 class Application
 {
@@ -1199,16 +1199,16 @@ function shutdownHandler()
     if (defined('FEGG_DEVELOPER') && FEGG_DEVELOPER && $error) {
         echo "<p>Debug Information (Developer Only) by Application::shutdownHandler()</p>";
         echo "Error File: " . $error['file'] . "<br/>";
-        echo "Error Line: " . $error['line'] . "<br/>";
+        echo "Error Line: <a href='#target'>" . $error['line'] . "</a><br/>";
         echo "Error Message: <font color='red'>" . $error['message'] . "</font><br/>";
         if (file_exists($error['file'])) {
             $source = explode("\n", htmlspecialchars(file_get_contents($error['file'])));
             echo '<pre>';
             foreach ($source as $key => $value) {
                 if ($key + 1 == $error['line']) {
-                    echo '<font color=red>' . ($key + 1) . ": $value</font><br/>";
+                    echo '<a name="target" /><font color=red>' . ($key + 1) . ": $value</font>";
                 } else {
-                    echo ($key + 1) . ": $value<br/>";
+                    echo ($key + 1) . ": $value";
                 }
             }
             echo '</pre>';
@@ -1216,4 +1216,3 @@ function shutdownHandler()
     }
 }
 register_shutdown_function('shutdownHandler');
-/* End of file Application.php */
