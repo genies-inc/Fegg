@@ -1,11 +1,11 @@
 <?php
 /**
  * ディスパッチャ
- * 
+ *
  * 全てのリクエストに対して、はじめにこのプログラムが実行されて、
  * 次にURLに応じて各プログラムが呼び出される。
  * ドキュメントルートに配置された .htaccess がその制御を行っている。
- * 
+ *
  * @author Genies, Inc.
  * @version 1.0.4
  */
@@ -44,7 +44,7 @@ $uri = preg_replace('/\?.*/', '', $uri);
 // URLセグメンテーション処理
 $feggUri = '';
 if (file_exists(FEGG_CODE_DIR . '/config/route.php')) {
-    
+
     // ルートファイルの読み込み
     require_once(FEGG_CODE_DIR . '/config/route.php');
 
@@ -92,7 +92,7 @@ foreach ($uriSegments as $key => $value) {
     if ($tempPath) {
         $tempPath .= '/';
     }
-    
+
     // 同一階層に同一のフォルダ名とファイル名が存在する場合はファイルを優先する
     if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . ucwords($value) . '.php')) {
         $fileName = ucwords($value);
@@ -139,7 +139,7 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
         if (method_exists($classInstance, $methodName)) {
             call_user_func_array(array($classInstance, $methodName), $parameter);
         }
-        
+
     } catch (Exception $exception) {
         // アプリケーションで例外をCatchされなかった例外の処理
         if (!(isset($_SERVER['REMOTE_ADDR']) && isset($settings['developer_ip']) && !in_array($_SERVER['REMOTE_ADDR'], $settings['developer_ip']))) {
@@ -151,7 +151,7 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
                         echo '<hr>関数内で定義された変数<br>';
                         print_r($trace[0]['args'][4]);
                         break;
-                        
+
                     case 'call_user_func_array':
                         echo '<hr>$this->page変数<br>';
                         print_r($value['args'][0][0]->page);
@@ -162,7 +162,7 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
         }
         exit;
     }
-    
+
 } else {
     header("HTTP/1.0 404 Not Found");
     echo "Application Not Found.<br/>";
@@ -176,7 +176,7 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
 /**
  * 実行中クラス(Application.phpを継承）のインスタンス取得
  */
-function &FEGG_getInstance() {
+function FEGG_getInstance() {
     global $classInstance;
     $instance = $classInstance->getInstance();
     return $instance;

@@ -56,9 +56,9 @@ class Application
             ini_set('display_errors', 1);
         }
         if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-            set_error_handler(array(&$this, "errorHandler"), E_ALL ^E_NOTICE ^E_DEPRECATED);
+            set_error_handler(array($this, "errorHandler"), E_ALL ^E_NOTICE ^E_DEPRECATED);
         } else {
-            set_error_handler(array(&$this, "errorHandler"), E_ALL ^E_NOTICE);
+            set_error_handler(array($this, "errorHandler"), E_ALL ^E_NOTICE);
         }
 
         // 文字コード設定
