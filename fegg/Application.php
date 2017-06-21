@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.4.3
+ * @version 1.4.4
  */
 class Application
 {
@@ -442,7 +442,7 @@ class Application
                 foreach ($matches[2] as $key => $paramater) {
                     $elements = explode(" ", trim($paramater));
                     $tempElements = array();
-                    foreach ($elements as $element) { ;
+                    foreach ($elements as $element) {
                         list($id, $value) = explode("=", $element);
                         $tempElements[trim($id)] = trim($value);
                     }
