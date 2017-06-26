@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.4.4
+ * @version 1.5.0
  */
 class Application
 {
@@ -663,7 +663,6 @@ class Application
         $segments = explode('/', $file);
         $tempPath = '';
         $fileName = '';
-        $nameSpace = '';
 
         foreach ($segments as $key => $value) {
 
@@ -673,12 +672,11 @@ class Application
                 break;
             }
             $tempPath .= $value . '/';
-            $nameSpace .= ucwords($value) . '_';
         }
 
         if ($fileName) {
             require_once(FEGG_CODE_DIR . "/lib/$file.php");
-            $className = $nameSpace . $fileName;
+            $className = $fileName;
             return new $className($parameter);
         } else {
             return null;
