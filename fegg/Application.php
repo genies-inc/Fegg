@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.5.1
+ * @version 1.5.2
  */
 class Application
 {
@@ -658,8 +658,15 @@ class Application
      * @param array $parameter
      * @return mixed 正常時：クラスインスタンス 異常時：null
      */
-    function getClass($file, $parameter = '')
+    function getClass()
     {
+        // 引数取得
+        $numberOfArgs = func_num_args();
+        $parameters = func_get_args();
+
+        // ファイル名
+        $file = array_shift($parameters);
+
         $segments = explode('/', $file);
         $tempPath = '';
         $fileName = '';
@@ -677,7 +684,9 @@ class Application
         if ($fileName) {
             require_once(FEGG_CODE_DIR . "/lib/$file.php");
             $className = $fileName;
-            return new $className($parameter);
+            $reflect  = new ReflectionClass($className);
+            $instance = $reflect->newInstanceArgs($parameters);
+            return $instance;
         } else {
             return null;
         }
