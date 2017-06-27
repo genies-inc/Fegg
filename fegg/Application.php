@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.5.0
+ * @version 1.5.1
  */
 class Application
 {
@@ -1204,9 +1204,9 @@ function shutdownHandler()
             echo '<pre>';
             foreach ($source as $key => $value) {
                 if ($key + 1 == $error['line']) {
-                    echo '<a name="target" /><font color=red>' . ($key + 1) . ": $value</font>";
+                    echo '<a name="target" /><font color=red>' . ($key + 1) . ": $value</font><br/>";
                 } else {
-                    echo ($key + 1) . ": $value";
+                    echo ($key + 1) . ": $value<br/>";
                 }
             }
             echo '</pre>';
