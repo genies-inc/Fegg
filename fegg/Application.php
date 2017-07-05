@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.5.2
+ * @version 1.5.3
  */
 class Application
 {
@@ -395,7 +395,7 @@ class Application
                 '/\{\{\s*else\s*\}\}/' => '<?php } else { ?>',
                 '/\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
                 '/\{\{\s*end\s*\}\}/i' => '<?php } ?>',
-                '/\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; foreach ($$1 as $$2 => $$3) { ?>',
+                '/\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; $$1 = isset($$1) ? (array)$$1 : array(); foreach ($$1 as $$2 => $$3) { ?>',
                 '/\{\{\s*end foreach\s*\}\}/i' => '<?php $foreachIndex++; } ?>',
                 '/\{\{\s*hidden\s*\}\}/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
                 '/\{\{\s*base\s*\}\}/i' => '<?php echo FEGG_REWRITEBASE; ?>',
