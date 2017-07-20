@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.5.3
+ * @version 1.6.0
  */
 class Application
 {
@@ -173,6 +173,18 @@ class Application
         }else {
             return false;
         }
+    }
+
+
+    /**
+     * 名前空間付きクラス名をlib以下のパスとして変換した文字列を返す
+     * @param string $classNamespace 名前空間付きクラス名
+     * @return string 名前空間をlib以下のパスに置き換えた文字列
+     */
+    private function _namespaceToPath($classNamespace) {
+        $path = ltrim($classNamespace, '\\');
+        $libRoot = FEGG_CODE_DIR . DIRECTORY_SEPARATOR . 'lib' .DIRECTORY_SEPARATOR;
+        return $libRoot . str_replace('\\', DIRECTORY_SEPARATOR, $path) . '.php';
     }
 
 
@@ -654,6 +666,9 @@ class Application
 
     /**
      * クラスを読み込みインスタンスを返す
+     * クラスの読み込み方はパス形式と名前空間形式がある
+     *     パス形式     : 読み込むクラスが名前空間を使用していない場合
+     *     名前空間形式 : 読み込むクラスが名前空間を使用している場合
      * @param string $file ファイル
      * @param array $parameter
      * @return mixed 正常時：クラスインスタンス 異常時：null
@@ -661,12 +676,31 @@ class Application
     function getClass()
     {
         // 引数取得
-        $numberOfArgs = func_num_args();
         $parameters = func_get_args();
 
-        // ファイル名
+        // ファイル名、もしくは名前空間を含むクラス名
         $file = array_shift($parameters);
 
+        // XXX : PHP 5.3以降
+        // これによってインスタンス化に失敗したクラスの名前空間をlib以下のパスに置き換えファイルを探す
+        // つまりgetClass($className)された$classNameクラスが別のクラスをrequire無しで呼び出せる
+        spl_autoload_register(function ($class) {
+            require_once $this->_namespaceToPath($class);
+        });
+
+        // 名前空間形式、もしくはlib直下はautoloadする
+        if (strpos($file, DIRECTORY_SEPARATOR) === false) {
+            // 異常時(名前空間を含むクラス名と一致するパスにファイルが存在しない場合)
+            if(!is_readable($this->_namespaceToPath($file))){
+                return null;
+            }
+
+            $reflect  = new ReflectionClass($file);
+            $instance = $reflect->newInstanceArgs($parameters);
+            return $instance;
+        }
+
+        // ここからパス形式の場合の処理
         $segments = explode('/', $file);
         $tempPath = '';
         $fileName = '';
@@ -684,6 +718,8 @@ class Application
         if ($fileName) {
             require_once(FEGG_CODE_DIR . "/lib/$file.php");
             $className = $fileName;
+            // 名前空間を指定しているのにパス形式を指定するとこの時点で$classNameは名前空間なしのものになっている
+            // 上のrequire_onceで読み込めているのに名前空間なしの別のクラスとして読み込もうとして失敗しautoloadが呼ばれてしまう
             $reflect  = new ReflectionClass($className);
             $instance = $reflect->newInstanceArgs($parameters);
             return $instance;
