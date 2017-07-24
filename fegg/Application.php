@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.7.0
+ * @version 1.7.1
  */
 class Application
 {
@@ -398,7 +398,7 @@ class Application
                 '/\{\{\s*end section (\w+)\s*\}\}/i' => '<?php }} section_$1($assignedValue); ?>',
                 '/\{\{\s*head\s*\}\}/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->setCurrentTemplateDirectory($value[\'dir\']); $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue); } } ?>',
                 '/\{\{\s*include\s+head\s+(\'*[^\s]+\'*)\s*\}\}/i' => '<?php if (isset($head)) { array_unshift($head, array( \'file\'=> $1, \'dir\'=>\''.$currentDir.'\' )); } else { $head[] = array( \'file\'=> $1, \'dir\'=>\''.$currentDir.'\' ); } ?>',
-                '/\{\{\s*include\s+(\'*[^\}]+\'*)\s*\}\}/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory(\''.$currentDir.'\'); $assignedClass[\'app\']->displayTemplate($1, $assignedValue); ?>',
+                '/\{\{\s*include\s+([^\};]+)\s*\}\}/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory(\''.$currentDir.'\'); $assignedClass[\'app\']->displayTemplate($1, $assignedValue); ?>',
                 '/\{\{\s*include\s+html\s+(\'*[^\s]+\'*)\s*\}\}/i' => '<?php include(FEGG_HTML_DIR . $1); ?>',
                 '/\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\}]+)\s*\}\}/i' => '<?php $1 = $2 ?>',
                 '/\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}/i' => '<?php if (isset($1) && $1) { ?>',
