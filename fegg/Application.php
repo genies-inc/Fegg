@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.6.0
+ * @version 1.6.1
  */
 class Application
 {
@@ -462,7 +462,7 @@ class Application
 
                     $statement = '';
                     $statement .= '<?php if (';
-                    if (!is_numeric($elements['key'])) {
+                    if (!is_numeric($elements['key']) && !is_string($elements['key'])) {
                         $statement .= 'isset(' . $elements['key'] . ') && ';
                     }
                     $statement .= 'isset(' . $elements['value'] . ') && (' . $elements['value'] . ' == ' . $elements['key'] . ' || (is_array(' . $elements['value'] . ') && in_array(' . $elements['key'] . ', ' . $elements['value'] . ')))) { echo \' ' . $matches[1][$key] . '\'; } ?>';
