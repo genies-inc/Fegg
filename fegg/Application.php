@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.7.1
+ * @version 1.8.0
  */
 class Application
 {
@@ -394,6 +394,10 @@ class Application
 
             // 基本命令をPHPに変換
             $pattern = array(
+                '/ *\{\-\{/i' => '{{',
+                '/\s*\{\--\{/i' => '{{',
+                '/\}\-\} */i' => '}}',
+                '/\}\--\}\s*/i' => '}}',
                 '/\{\{\s*section\s+(\w+)\s*\}\}/i' => '<?php if (!function_exists("section_$1")) { function section_$1($assignedValue) { ?>',
                 '/\{\{\s*end section (\w+)\s*\}\}/i' => '<?php }} section_$1($assignedValue); ?>',
                 '/\{\{\s*head\s*\}\}/i' => '<?php if (isset($head)) { $assignedClass[\'app\'] = FEGG_getInstance(); foreach($head as $key => $value) { $assignedClass[\'app\']->setCurrentTemplateDirectory($value[\'dir\']); $assignedClass[\'app\']->displayTemplate($value[\'file\'], $assignedValue); } } ?>',
