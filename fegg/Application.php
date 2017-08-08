@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.0
+ * @version 1.8.1
  */
 class Application
 {
@@ -454,9 +454,9 @@ class Application
 
             // checked, selected をPHPに変換
             $pattern = array();
-            if (preg_match_all('/ *\{\{\s*(checked|selected)\s+(key\s*=\s*.+\s+value\s*=\s*.+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*.+\s+value\s*=\s*.+)\s*\}\}/i', $compiledTemplate, $matches)) {
                 foreach ($matches[2] as $key => $paramater) {
-                    $elements = explode(" ", trim($paramater));
+                    $elements = explode(" ", preg_replace('/\s+/', ' ', trim($paramater)));
                     $tempElements = array();
                     foreach ($elements as $element) {
                         list($id, $value) = explode("=", $element);
