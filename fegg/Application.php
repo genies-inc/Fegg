@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.1
+ * @version 1.8.2
  */
 class Application
 {
@@ -35,7 +35,7 @@ class Application
 
         // メンテナンス中の場合はリダイレクト（開発者を除く）
         if (!$this->_settings['run_mode']) {
-            if (isset($_SERVER['REMOTE_ADDR']) && !in_array($_SERVER['REMOTE_ADDR'], $this->_settings['developer_ip'])) {
+            if (!isset($_SERVER['REMOTE_ADDR']) || (isset($_SERVER['REMOTE_ADDR']) && !in_array($_SERVER['REMOTE_ADDR'], $this->_settings['developer_ip']))) {
                 if (isset($this->_settings['maintenance_page_url']) && $this->_settings['maintenance_page_url']) {
                     $this->redirect($this->_settings['maintenance_page_url']);
                 } else {
@@ -46,7 +46,7 @@ class Application
         }
 
         // エラー処理設定
-        if (isset($_SERVER['REMOTE_ADDR']) && isset($this->_settings['developer_ip']) && !in_array($_SERVER['REMOTE_ADDR'], $this->_settings['developer_ip'])) {
+        if (!isset($_SERVER['REMOTE_ADDR']) || (isset($_SERVER['REMOTE_ADDR']) && !in_array($_SERVER['REMOTE_ADDR'], $this->_settings['developer_ip']))) {
             // 本番モード
             define('FEGG_DEVELOPER', '0');
             ini_set( 'display_errors', 0 );

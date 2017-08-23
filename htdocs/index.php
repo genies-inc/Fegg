@@ -164,7 +164,8 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
 
 } else {
     header("HTTP/1.0 404 Not Found");
-    if (!(isset($_SERVER['REMOTE_ADDR']) && isset($settings['developer_ip']) && !in_array($_SERVER['REMOTE_ADDR'], $settings['developer_ip']))) {
+    require(FEGG_DIR . '/settings.php');
+    if (isset($_SERVER['REMOTE_ADDR']) && isset($settings['developer_ip']) && in_array($_SERVER['REMOTE_ADDR'], $settings['developer_ip'])) {
         echo "Application Not Found.<br/>";
         echo "URI       : ". $uri . '<br/>';
         echo "Fegg URI  : ". $feggUri . '<br/>';
