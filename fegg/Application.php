@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.2
+ * @version 1.8.3
  */
 class Application
 {
@@ -405,13 +405,13 @@ class Application
                 '/\{\{\s*include\s+([^\};]+)\s*\}\}/i' => '<?php $assignedClass[\'app\'] = FEGG_getInstance(); $assignedClass[\'app\']->setCurrentTemplateDirectory(\''.$currentDir.'\'); $assignedClass[\'app\']->displayTemplate($1, $assignedValue); ?>',
                 '/\{\{\s*include\s+html\s+(\'*[^\s]+\'*)\s*\}\}/i' => '<?php include(FEGG_HTML_DIR . $1); ?>',
                 '/\{\{\s*assign\s+(\$[\w\.\[\]\$]+)\s*=\s*(\s*[^\}]+)\s*\}\}/i' => '<?php $1 = $2 ?>',
-                '/\{\{\s*if\s+(\s*\$[\w\.\[\]\$]+)\s*\}\}/i' => '<?php if (isset($1) && $1) { ?>',
+                '/\{\{\s*if\s+(\s*\$[\$\w\.\[\]\_\']+)\s*\}\}/i' => '<?php if (isset($1) && $1) { ?>',
                 '/\{\{\s*if\s+([^\{]+)\s*\}\}/i' => '<?php if ($1) { ?>',
                 '/\{\{\s*else\s*if\s*([^\{]+)\s*\}\}/i' => '<?php } else if ($1) { ?>',
                 '/\{\{\s*else\s*\}\}/' => '<?php } else { ?>',
                 '/\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
                 '/\{\{\s*end\s*\}\}/i' => '<?php } ?>',
-                '/\{\{\s*foreach\s+\$([^\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; $$1 = isset($$1) ? (array)$$1 : array(); foreach ($$1 as $$2 => $$3) { ?>',
+                '/\{\{\s*foreach\s+\$([\$\w\.\[\]\_\'\s]+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; $$1 = isset($$1) ? (array)$$1 : array(); foreach ($$1 as $$2 => $$3) { ?>',
                 '/\{\{\s*end foreach\s*\}\}/i' => '<?php $foreachIndex++; } ?>',
                 '/\{\{\s*hidden\s*\}\}/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
                 '/\{\{\s*base\s*\}\}/i' => '<?php echo FEGG_REWRITEBASE; ?>',
@@ -454,9 +454,11 @@ class Application
 
             // checked, selected をPHPに変換
             $pattern = array();
-            if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*.+\s+value\s*=\s*.+)\s*\}\}/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*[\$\w\.\[\]\_\'\s]+\s+value\s*=\s*[\$\w\.\[\]\_\'\s]+)\s*\}\}/i', $compiledTemplate, $matches)) {
                 foreach ($matches[2] as $key => $paramater) {
-                    $elements = explode(" ", preg_replace('/\s+/', ' ', trim($paramater)));
+                    $parameter = preg_replace('/\s+/', ' ', trim($paramater));
+                    $parameter = preg_replace('/\s+value=/', '|value=', trim($paramater));
+                    $elements = explode("|", $parameter);
                     $tempElements = array();
                     foreach ($elements as $element) {
                         list($id, $value) = explode("=", $element);
@@ -529,7 +531,7 @@ class Application
             preg_match_all('/\<\?php\s+((?!\?\>).)+\s+\?\>/i', $compiledTemplate, $matches);
 
             foreach ($matches[0] as $key => $value) {
-                $pattern[$value] =  preg_replace_callback('/(\$[\$\w\.]+)/i', $function, $value);
+                $pattern[$value] =  preg_replace_callback('/(\$[\$\w\.\_\'\s]+)/i', $function, $value);
             }
 
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
