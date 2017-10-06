@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.3
+ * @version 1.8.4
  */
 class Application
 {
@@ -1015,7 +1015,7 @@ class Application
         $header = '';
         $header .= "From: {$from}\n";
         $header .= "MIME-Version: 1.0\n";
-        $header .= "Content-Type: Multipart/Mixed; boundary=\"{$boundary}\"\n\n";
+        $header .= "Content-Type: Multipart/Mixed; boundary=\"{$boundary}\"\n";
         $header .= "Reply-To: {$bounceto}\n";
 
         // タイトル
