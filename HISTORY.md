@@ -1,5 +1,7 @@
 修正履歴
 ====
+- 1.8.6
+  2017/10/24 checked, selectedタグのkey, valueの値でダブルクォートによる文字列に対応
 - 1.8.5
   2017/10/20 checked, selectedタグの内部処理でin_arrayの第三引数にtrueを追加
 - 1.8.4
