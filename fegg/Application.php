@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.7
+ * @version 1.8.8
  */
 class Application
 {
@@ -454,7 +454,7 @@ class Application
 
             // checked, selected をPHPに変換
             $pattern = array();
-            if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*[\(\)\$\w\.\[\]\_\'\s\"]+\s+value\s*=\s*[\$\w\.\[\]\_\'\s\"]+)\s*\}\}/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*[\(\)\$\w\.\[\]\_\'\s\"]+\s+value\s*=\s*[\$\w\.\[\]\_\'\s\"]+)\s(typecheck=[\w]+)*\s*\}\}/i', $compiledTemplate, $matches)) {
                 foreach ($matches[2] as $key => $paramater) {
                     $parameter = preg_replace('/\s+/', ' ', trim($paramater));
                     $parameter = preg_replace('/\s+value=/', '|value=', trim($paramater));
@@ -466,12 +466,14 @@ class Application
                     }
                     $elements = $tempElements;
 
+                    $typecheck = isset($matches[3]) && $matches[3][0] != '' ? ', true' : '';
+
                     $statement = '';
                     $statement .= '<?php if (';
                     if (!is_numeric($elements['key']) && !is_string($elements['key'])) {
                         $statement .= 'isset(' . $elements['key'] . ') && ';
                     }
-                    $statement .= 'isset(' . $elements['value'] . ') && (' . $elements['value'] . ' == ' . $elements['key'] . ' || (is_array(' . $elements['value'] . ') && in_array(' . $elements['key'] . ', ' . $elements['value'] . ', true)))) { echo \' ' . $matches[1][$key] . '\'; } ?>';
+                    $statement .= 'isset(' . $elements['value'] . ') && (' . $elements['value'] . ' == ' . $elements['key'] . ' || (is_array(' . $elements['value'] . ') && in_array(' . $elements['key'] . ', ' . $elements['value'] . $typecheck . ')))) { echo \' ' . $matches[1][$key] . '\'; } ?>';
                     $pattern[$matches[0][$key]] = $statement;
                 }
             }

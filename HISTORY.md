@@ -1,5 +1,7 @@
 修正履歴
 ====
+- 1.8.8
+  2017/11/09 checked, selectedタグでtypecheck=trueとした場合のみ内部処理でin_arrayの第三引数にtrueを指定するように変更
 - 1.8.7
   2017/11/09 checked, selectedタグのkeyで()による型変換に対応
 - 1.8.6
