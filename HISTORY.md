@@ -1,5 +1,6 @@
 修正履歴
 ====
+/fegg/Application.php
 - 1.8.8
   2017/11/09 checked, selectedタグでtypecheck=trueとした場合のみ内部処理でin_arrayの第三引数にtrueを指定するように変更
 - 1.8.7
@@ -56,3 +57,7 @@
   2016/04/28 displayTemplate でのcodeタグの処理でタグの範囲が正しく認識されない問題に対応
 - 1.3.5
   2016/04/05 shutdownHandler のエラー表示有無の判定に「FEGG_DEVELOPERが定義済みであること」を追加
+
+/htdocs/index.php
+- 1.1.0
+  2017/11/22 エラー時の情報表示が開発環境以外でも表示される問題を修正
