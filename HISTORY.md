@@ -1,6 +1,8 @@
 修正履歴
 ====
 /fegg/Application.php
+- 1.8.9
+  2017/12/04 checked, selectedタグでkey, valueにマイナス値の設定ができるように変更
 - 1.8.8
   2017/11/09 checked, selectedタグでtypecheck=trueとした場合のみ内部処理でin_arrayの第三引数にtrueを指定するように変更
 - 1.8.7
