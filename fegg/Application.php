@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.9
+ * @version 1.8.10
  */
 class Application
 {
@@ -473,7 +473,8 @@ class Application
                     if (!is_numeric($elements['key']) && !is_string($elements['key'])) {
                         $statement .= 'isset(' . $elements['key'] . ') && ';
                     }
-                    $statement .= 'isset(' . $elements['value'] . ') && (' . $elements['value'] . ' == ' . $elements['key'] . ' || (is_array(' . $elements['value'] . ') && in_array(' . $elements['key'] . ', ' . $elements['value'] . $typecheck . ')))) { echo \' ' . $matches[1][$key] . '\'; } ?>';
+                    $operator = $typecheck ? ' === ' : ' == ';
+                    $statement .= 'isset(' . $elements['value'] . ') && (' . $elements['value'] . $operator . $elements['key'] . ' || (is_array(' . $elements['value'] . ') && in_array(' . $elements['key'] . ', ' . $elements['value'] . $typecheck . ')))) { echo \' ' . $matches[1][$key] . '\'; } ?>';
                     $pattern[$matches[0][$key]] = $statement;
                 }
             }
