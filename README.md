@@ -53,6 +53,7 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.+)$ index.php?/$1/ [L,QSA]
 ```
 
+
 Apacheでエイリアスを設定する場合、次の変更が必要です。
 - .htaccessのRewriteBaseを / から /alias_name と書き換える
 - index.phpの23行目移行を次のように書き換える
@@ -65,6 +66,7 @@ for ($i = 0; $i < substr_count(FEGG_REWRITEBASE, '/') + 1; $i++) {
 }
 ```
 変更後
+```
 $tempPath = '/..';
 // for ($i = 0; $i < substr_count(FEGG_REWRITEBASE, '/') + 1; $i++) {
 //     $tempPath .= '/..';
