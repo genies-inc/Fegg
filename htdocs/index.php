@@ -121,6 +121,7 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
 
     // 実行対象のアプリケーションのパス（リダイレクトやテンプレート用を想定）
     define('FEGG_APP_BASE', FEGG_REWRITEBASE . '/' . $tempPath . $fileName);
+    define('FEGG_APP_CLASS', $fileName);
 
     try {
 
