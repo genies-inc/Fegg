@@ -69,3 +69,6 @@ $tempPath = '/..';
 // for ($i = 0; $i < substr_count(FEGG_REWRITEBASE, '/') + 1; $i++) {
 //     $tempPath .= '/..';
 // }
+```
+
+バリデーションやファイル操作などFeggをより便利にするライブラリーを https://github.com/genies-inc/Fegg-tools にまとめています。
