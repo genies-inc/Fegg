@@ -1,6 +1,8 @@
 修正履歴
 ====
 /fegg/Application.php
+- 1.8.11
+  2018/04/24 foreachタグが連続すると正しく処理されない問題を修正
 - 1.8.10
   2017/12/04 checked, selectedタグでtypecheck=trueを指定した際にtypecheckがされないケースがある問題を修正
 - 1.8.9
