@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.12
+ * @version 1.8.13
  */
 class Application
 {
@@ -422,7 +422,7 @@ class Application
 
             // call をPHPに変換
             $pattern = array();
-            if (preg_match_all('/ *\{\{\s*call\s+\'[\/]*([\w\/]+)\'\s*\}\}\s*/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/\{\{\s*call\s+\'[\/]*([\w\/]+)\'\s*\}\}/i', $compiledTemplate, $matches)) {
                 $tempPath = '';
                 $nameSpace = '';
                 $fileName = '';
@@ -454,7 +454,7 @@ class Application
 
             // checked, selected をPHPに変換
             $pattern = array();
-            if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*[\(\)\$\w\.\[\]\_\'\s\"\-]+\s+value\s*=\s*[\$\w\.\[\]\_\'\s\"\-]+)\s(typecheck=[\w]+)*\s*\}\}/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*[\(\)\$\w\.\[\]\_\'\s\"\-]+\s+value\s*=\s*[\$\w\.\[\]\_\'\s\"\-]+)(\s+typecheck=[\w]+)*\s*\}\}/i', $compiledTemplate, $matches)) {
                 foreach ($matches[2] as $key => $paramater) {
                     $parameter = preg_replace('/\s+/', ' ', trim($paramater));
                     $parameter = preg_replace('/\s+value=/', '|value=', trim($paramater));
@@ -483,7 +483,7 @@ class Application
 
             // options をPHPに変換
             $pattern = array();
-            if (preg_match_all('/ *\{\{\s*options\s+([^\}]+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/\{\{\s*options\s+([^\}]+)\s*\}\}/i', $compiledTemplate, $matches)) {
                 foreach ($matches[1] as $key => $paramater) {
                     $elements = explode(" ", trim($paramater));
                     $tempElements = array();
@@ -511,7 +511,7 @@ class Application
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // code をPHPに変換
-            if (preg_match_all('/\s*\{\{\s*code\s+([^\{\}]+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/\{\{\s*code\s+([^\{\}]+)\s*\}\}/i', $compiledTemplate, $matches)) {
                 foreach ($matches[1] as $key => $paramater) {
                     $compiledTemplate = str_replace($matches[0][$key], '<?php ' . $paramater . ' ?>', $compiledTemplate);
                 }
