@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.10
+ * @version 1.8.12
  */
 class Application
 {
@@ -511,7 +511,7 @@ class Application
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // code をPHPに変換
-            if (preg_match_all('/ *\{\{\s*code\s+([^\{\}]+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
+            if (preg_match_all('/\s*\{\{\s*code\s+([^\{\}]+)\s*\}\}\s*/i', $compiledTemplate, $matches)) {
                 foreach ($matches[1] as $key => $paramater) {
                     $compiledTemplate = str_replace($matches[0][$key], '<?php ' . $paramater . ' ?>', $compiledTemplate);
                 }
