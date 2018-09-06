@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.8.13
+ * @version 1.9.0
  */
 class Application
 {
@@ -359,37 +359,36 @@ class Application
             }
 
             // 変数修飾子をPHPに変換
-            $callback = '';
-            $callback .= '$tokens = explode("|", trim($matches[1])); ';
-            $callback .= '$statement = \'$\' . trim(array_shift($tokens)); ';
-            $callback .= '$variable = $statement; ';
-            $callback .= '$htmlSpecialCharsFlag = true; ';
-            $callback .= '$breakLineFlag = false; ';
-            $callback .= 'foreach ($tokens as $modifire) { ';
-            $callback .= '    $parameters = explode(":", trim($modifire)); ';
-            $callback .= '    $modifire = array_shift($parameters); ';
-            $callback .= '    if ($htmlSpecialCharsFlag && strtolower($modifire) == "noescape") { ';
-            $callback .= '        $htmlSpecialCharsFlag = false; ';
-            $callback .= '    } else if(! $breakLineFlag && strtolower($modifire) == "br") { ';
-            $callback .= '        $breakLineFlag = true; ';
-            $callback .= '    } else if(strtolower($modifire) == "replace") { ';
-            $callback .= '        $statement = "mb_ereg_replace(\'" . $parameters[0] . "\', \'" . $parameters[1] . "\', " . $statement . ")"; ';
-            $callback .= '    } else { ';
-            $callback .= '        $parameter = ""; foreach ($parameters as $value) { $parameter .= "," . $value; } ';
-            $callback .= '        $statement = $modifire . "(" . $statement . $parameter . ")"; ';
-            $callback .= '    } ';
-            $callback .= '} ';
-            $callback .= 'if ($htmlSpecialCharsFlag && $breakLineFlag) { ';
-            $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo nl2br( htmlSpecialChars($statement, ENT_QUOTES, \'' . FEGG_DEFAULT_CHARACTER_CODE . '\') ); } ?>"; ';
-            $callback .= '} else if($htmlSpecialCharsFlag) { ';
-            $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo htmlSpecialChars($statement, ENT_QUOTES, \'' . FEGG_DEFAULT_CHARACTER_CODE . '\'); } ?>"; ';
-            $callback .= '} else if($breakLineFlag) { ';
-            $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo nl2br($statement); } ?>"; ';
-            $callback .= '} else { ';
-            $callback .= '    return "<?php if (isset($variable) && !is_array($variable)) { echo $statement; } ?>"; ';
-            $callback .= '} ';
-            $function = create_function('$matches', $callback);
-
+            $function = function($matches) {
+                $tokens = explode("|", trim($matches[1]));
+                $statement = '$' . trim(array_shift($tokens));
+                $variable = $statement;
+                $htmlSpecialCharsFlag = true;
+                $breakLineFlag = false;
+                foreach ($tokens as $modifire) {
+                    $parameters = explode(":", trim($modifire));
+                    $modifire = array_shift($parameters);
+                    if ($htmlSpecialCharsFlag && strtolower($modifire) == "noescape") {
+                        $htmlSpecialCharsFlag = false;
+                    } else if(! $breakLineFlag && strtolower($modifire) == "br") {
+                        $breakLineFlag = true;
+                    } else if(strtolower($modifire) == "replace") {
+                        $statement = "mb_ereg_replace('" . $parameters[0] . "', '" . $parameters[1] . "', " . $statement . ")";
+                    } else {
+                        $parameter = ""; foreach ($parameters as $value) { $parameter .= "," . $value; }
+                        $statement = $modifire . "(" . $statement . $parameter . ")";
+                    }
+                }
+                if ($htmlSpecialCharsFlag && $breakLineFlag) {
+                    return "<?php if (isset($variable) && !is_array($variable)) { echo nl2br( htmlSpecialChars($statement, ENT_QUOTES, '' . FEGG_DEFAULT_CHARACTER_CODE . '') ); } ?>";
+                } else if($htmlSpecialCharsFlag) {
+                    return "<?php if (isset($variable) && !is_array($variable)) { echo htmlSpecialChars($statement, ENT_QUOTES, '' . FEGG_DEFAULT_CHARACTER_CODE . ''); } ?>";
+                } else if($breakLineFlag) {
+                    return "<?php if (isset($variable) && !is_array($variable)) { echo nl2br($statement); } ?>";
+                } else {
+                    return "<?php if (isset($variable) && !is_array($variable)) { echo $statement; } ?>";
+                }
+            };
             $compiledTemplate = preg_replace_callback('/\{\{\s*\$(.+)\s*\}\}\s*/U', $function, $compiledTemplate);
 
             // 基本命令をPHPに変換
@@ -518,17 +517,16 @@ class Application
             }
 
             // 変数を$assignedValueの要素として変換
-            $callback = '';
-            $callback .= 'if (trim($matches[1])==\'$assignedValue\' || trim($matches[1])==\'$assignedClass\' || trim($matches[1])==\'$assignedHead\') { return trim($matches[1]); } ';
-            $callback .= '$variables = explode(".", trim($matches[1])); ';
-            $callback .= '$element = ""; ';
-            $callback .= 'foreach ($variables as $variable) { ';
-            $callback .= '    $variable = str_replace(\'$\', \'\', $variable); ';
-            $callback .= '    $element .= "[\'" . "$variable" . "\']"; ';
-            $callback .= '} ';
-            $callback .= 'return \'$assignedValue\' . $element; ';
-
-            $function = create_function('$matches', $callback);
+            $function = function($matches) {
+                if (trim($matches[1]) == '$assignedValue' || trim($matches[1]) == '$assignedClass' || trim($matches[1]) == '$assignedHead') { return trim($matches[1]); } 
+                $variables = explode(".", trim($matches[1])); 
+                $element = ""; 
+                foreach ($variables as $variable) { 
+                    $variable = str_replace('$', '', $variable); 
+                    $element .= "['" . "$variable" . "']"; 
+                } 
+                return '$assignedValue' . $element;                 
+            };
 
             $pattern = array();
             preg_match_all('/\<\?php\s+((?!\?\>).)+\s+\?\>/i', $compiledTemplate, $matches);
