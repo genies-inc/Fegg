@@ -2,6 +2,8 @@
 ====
 /fegg/Application.php
 - 1.9.0
+  2018/09/12 PHP7.x環境でillegal string offsetが発生する箇所を修正
+- 1.9.0
   2018/09/06 PHP7.2以降でcreate_functionが非推奨になったため使用箇所を修正
 - 1.8.13
   2018/05/10 タグの前方空白の処理を修正

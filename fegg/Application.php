@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.9.0
+ * @version 1.9.1
  */
 class Application
 {
@@ -518,14 +518,14 @@ class Application
 
             // 変数を$assignedValueの要素として変換
             $function = function($matches) {
-                if (trim($matches[1]) == '$assignedValue' || trim($matches[1]) == '$assignedClass' || trim($matches[1]) == '$assignedHead') { return trim($matches[1]); } 
-                $variables = explode(".", trim($matches[1])); 
-                $element = ""; 
-                foreach ($variables as $variable) { 
-                    $variable = str_replace('$', '', $variable); 
-                    $element .= "['" . "$variable" . "']"; 
-                } 
-                return '$assignedValue' . $element;                 
+                if (trim($matches[1]) == '$assignedValue' || trim($matches[1]) == '$assignedClass' || trim($matches[1]) == '$assignedHead') { return trim($matches[1]); }
+                $variables = explode(".", trim($matches[1]));
+                $element = "";
+                foreach ($variables as $variable) {
+                    $variable = str_replace('$', '', $variable);
+                    $element .= "['" . "$variable" . "']";
+                }
+                return '$assignedValue' . $element;
             };
 
             $pattern = array();
@@ -944,7 +944,7 @@ class Application
         $method = strtoupper($method);
 
         // リクエストデータ取得
-        $requestData = '';
+        $requestData = [];
         if ($name) {
 
             // 対象のデータを取得
