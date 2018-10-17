@@ -561,6 +561,27 @@ class Application
 
 
     /**
+     * アプリケーション独自の "空" 判定
+     * '', array(), NULL, false を "空" として判定
+     * @param  mixed 判定する変数
+     * @return boolean 空なら ture そうでなければ false
+     */
+    function empty($var)
+    {
+        if ((is_array($var) && count($var) == 0)
+         || ($var === "")
+         || ($var === NULL)
+         || ($var === false)) {
+
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+
+    /**
      * エラー時の例外発生
      * @param int $errorNo
      * @param string $errorMessage
@@ -969,29 +990,11 @@ class Application
             }
         }
 
-        // 空の場合は空白を返す（下位互換のため）
-        $requestData = !$this->isNull($requestData) ? $requestData : "";
+        // 空の場合は空白を返す（ [] ではなく下位互換のため "" を返す）
+        $requestData = !$this->empty($requestData) ? $requestData : "";
 
         // 文字コード、シングル・ダブルクォートを変換
         return $this->_convertRequestData($requestData);
-    }
-
-
-    /**
-     * アプリケーションとしての空判定
-     */
-    function isNull($var)
-    {
-        if ((is_array($var) && count($var) == 0)
-         || ($var === "")
-         || ($var === NULL)
-         || ($var === false)) {
-
-            return true;
-
-        } else {
-            return false;
-        }
     }
 
 
