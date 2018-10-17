@@ -8,7 +8,7 @@
  *
  * @access public
  * @author Genies Inc.
- * @version 1.9.1
+ * @version 1.9.2
  */
 class Application
 {
@@ -969,8 +969,29 @@ class Application
             }
         }
 
+        // 空の場合は空白を返す（下位互換のため）
+        $requestData = !$this->isNull($requestData) ? $requestData : "";
+
         // 文字コード、シングル・ダブルクォートを変換
         return $this->_convertRequestData($requestData);
+    }
+
+
+    /**
+     * アプリケーションとしての空判定
+     */
+    function isNull($var)
+    {
+        if ((is_array($var) && count($var) == 0)
+         || ($var === "")
+         || ($var === NULL)
+         || ($var === false)) {
+
+            return true;
+
+        } else {
+            return false;
+        }
     }
 
 
