@@ -6,8 +6,10 @@
  * 次にURLに応じて各プログラムが呼び出される。
  * ドキュメントルートに配置された .htaccess がその制御を行っている。
  *
- * @author Genies, Inc.
- * @version 1.1.0
+ * @author    Kazuyuki Saka
+ * @copyright 2005-2019 Genies Inc.
+ * @version   1.1.0
+ * @link      https://github.com/genies-inc/Fegg 
  */
 
 // アプリケーションが設置されている位置

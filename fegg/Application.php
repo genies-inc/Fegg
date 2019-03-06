@@ -6,9 +6,11 @@
  *
  * 関連ファイル： settings.php
  *
- * @access public
- * @author Genies Inc.
- * @version 1.9.2
+ * @access    public
+ * @author    Kazuyuki Saka
+ * @copyright 2005-2019 Genies Inc.
+ * @version   1.9.3
+ * @link      https://github.com/genies-inc/Fegg
  */
 class Application
 {
@@ -324,7 +326,7 @@ class Application
             $compiledTemplate = file_get_contents($templateFile);
 
             // 継承処理
-            $pattern = '/ *\{\{ transclude [\'"]([^\'"]+)[\'"] \}\}(.*)\s*/s';
+            $pattern = '/\s*\{\{\s*transclude [\'"]([^\'"]+)[\'"]\s*\}\}(.*)\s*/s';
             if (preg_match($pattern, $compiledTemplate, $matches)) {
 
                 // コンポーネントの継承処理
@@ -346,7 +348,7 @@ class Application
                     $parentTemplate = file_get_contents($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext']);
 
                     $tempPattern = array();
-                    if (preg_match_all('/ *\{\{\s*section\s+(\w+)\s*\}\}\s*/', $parentTemplate, $parentParts)) {
+                    if (preg_match_all('/\s*{\{\s*section\s+(\w+)\s*\}\}\s*/', $parentTemplate, $parentParts)) {
                         foreach ($parentParts[1] as $key => $value) {
                             $tempPattern['/ *\{\{\s*end\s+section\s+(' . $value . ')\s*\}\}\s*/'] = '<?php }} ?>';
                         }

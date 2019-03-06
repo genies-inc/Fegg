@@ -5,8 +5,10 @@
  * サーバー環境、実行状況に合わせて変更する必要のある設定値を定義。
  * ほぼ変更のない値はdefineで定数定義し、アプリケーション毎に見直す必要がある値は$settingsとして変数定義している。
 
- * @author Genies, Inc.
- * @version 1.0.4
+ * @author    Kazuyuki Saka
+ * @copyright 2005-2019 Genies Inc.
+ * @version   1.0.4
+ * @link      https://github.com/genies-inc/Fegg
  */
 // 定数定義（基本的に変更の必要がない値を定義）
 // 制御
