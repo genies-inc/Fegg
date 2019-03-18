@@ -1,6 +1,8 @@
 修正履歴
 ====
 /fegg/Application.php
+- 1.9.4
+  2019/03/18 setTicket() で取得したコードを返すように変更
 - 1.9.3
   2019/03/06 transclude, sectionタグ中の空白処理を修正、Githubのリンク先を追加等コメントの修正
 - 1.9.2

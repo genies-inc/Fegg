@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.9.3
+ * @version   1.9.4
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -1195,6 +1195,7 @@ class Application
     /**
      * リロード対策用ワンタイムチケット発行
      * @param string $name チケット名
+     * @return string チケットコード
      */
     function setTicket($name)
     {
@@ -1202,6 +1203,8 @@ class Application
         $ticket = md5(uniqid() . mt_rand());
         $this->setSession($ticketName, $ticket);
         $this->setHidden($ticketName, htmlspecialchars($ticket, ENT_QUOTES, FEGG_DEFAULT_CHARACTER_CODE));
+        
+        return $ticket;
     }
 
 
