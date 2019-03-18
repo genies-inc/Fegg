@@ -1249,10 +1249,10 @@ class Application
      * @param string $name
      * @return boolean チケット有効： true / チケット無効： false
      */
-    function useTicket($name)
+    function useTicket($name, $method = 'POST')
     {
         $ticketName = 'ticket_' . $name;
-        $ticketId = $this->in($ticketName, 'POST');
+        $ticketId = $this->in($ticketName, $method);
 
         if (!$ticketId || $this->getSession($ticketName) == '') {
             return false;
