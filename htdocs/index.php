@@ -8,7 +8,7 @@
  *
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.1.0
+ * @version   1.1.1
  * @link      https://github.com/genies-inc/Fegg 
  */
 
@@ -187,4 +187,3 @@ function FEGG_getInstance() {
     $instance = $classInstance->getInstance();
     return $instance;
 }
-/* End of file index.php */

@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.9.4
+ * @version   1.9.5
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -594,7 +594,7 @@ class Application
     {
         // 開発モードでは詳細を表示してから例外を発生させる
         if (FEGG_DEVELOPER) {
-            $error = '';
+            $error = "<p>Debug Information (Developer Only) by Application::errorHandler()</p>";
             $error .= "Error File: $errorFile<br/>";
             $error .= "Error Line: $errorLine<br/>";
             $error .= "Error Message: <font color='red'>$errorMessage</font><br/>";
@@ -1203,7 +1203,7 @@ class Application
         $ticket = md5(uniqid() . mt_rand());
         $this->setSession($ticketName, $ticket);
         $this->setHidden($ticketName, htmlspecialchars($ticket, ENT_QUOTES, FEGG_DEFAULT_CHARACTER_CODE));
-        
+
         return $ticket;
     }
 
@@ -1274,24 +1274,31 @@ class Application
  */
 function shutdownHandler()
 {
-    $error = error_get_last();
-    if (defined('FEGG_DEVELOPER') && FEGG_DEVELOPER && $error) {
-        echo "<p>Debug Information (Developer Only) by Application::shutdownHandler()</p>";
-        echo "Error File: " . $error['file'] . "<br/>";
-        echo "Error Line: <a href='#target'>" . $error['line'] . "</a><br/>";
-        echo "Error Message: <font color='red'>" . $error['message'] . "</font><br/>";
-        if (file_exists($error['file'])) {
-            $source = explode("\n", htmlspecialchars(file_get_contents($error['file'])));
-            echo '<pre>';
-            foreach ($source as $key => $value) {
-                if ($key + 1 == $error['line']) {
-                    echo '<a name="target" /><font color=red>' . ($key + 1) . ": $value</font><br/>";
-                } else {
-                    echo ($key + 1) . ": $value<br/>";
+    $e = error_get_last();
+    $errorLine = $e['line'] ?? '';
+    $errorMessage = $e['message'] ?? '';
+    $errorFile = $e['file'] ?? '';
+
+    if (defined('FEGG_DEVELOPER') && FEGG_DEVELOPER && $errorLine) {
+        $error = "<p>Debug Information (Developer Only) by Application::shutdownHandler()</p>";
+        $error .= "Error File: $errorFile<br/>";
+        $error .= "Error Line: $errorLine<br/>";
+        $error .= "Error Message: <font color='red'>$errorMessage</font><br/>";
+
+        // エラー対象ファイルの該当行の表示
+        if(file_exists($errorFile)) {
+            $file = file_get_contents($errorFile);
+            $line = explode("\n", $file);
+            $error .= '<p></p>';
+            for ($i = $errorLine - 10; $i <= $errorLine + 10; $i++) {
+                if ($i > 0 && isset($line[$i - 1])) {
+                    if ($i == $errorLine) { $error .= '<font color="red">'; }
+                    $error .= $i . ': ' . htmlspecialchars($line[$i - 1]) . '<br/>';
+                    if ($i == $errorLine) { $error .= '</font>'; }
                 }
             }
-            echo '</pre>';
         }
+        echo '<pre>' . $error . '</pre>';
     }
 }
 register_shutdown_function('shutdownHandler');
