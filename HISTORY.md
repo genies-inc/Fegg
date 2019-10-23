@@ -1,6 +1,8 @@
 修正履歴
 ====
 /fegg/Application.php
+- 1.9.6
+  2019/10/23 PUT, DELETE Methodに対応
 - 1.9.5
   2019/08/26 errorHandler(), shutdownHandler() のエラーメッセージのロジックを統一
 - 1.9.4

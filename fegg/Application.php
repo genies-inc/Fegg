@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.9.5
+ * @version   1.9.6
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -981,6 +981,13 @@ class Application
                     $requestData = $_POST[$name];
                 }
             }
+            if (!$method || $method == 'PUT' || $method == 'DELETE') {
+                parse_str(file_get_contents('php://input'), $param);
+                if (isset($param[$name]) && $param[$name] != "") {
+                    $requestData = $param[$name];
+                }
+            }
+                        
         } else {
 
             // 全データを取得
@@ -990,6 +997,11 @@ class Application
             if (!$method || $method == 'POST') {
                 foreach ($_POST as $key => $value) { $requestData[$key] = $value; }
             }
+            if (!$method || $method == 'PUT' || $method == 'DELETE') {
+                parse_str(file_get_contents('php://input'), $param);
+                foreach ($param as $key => $value) { $requestData[$key] = $value; }
+            }
+                        
         }
 
         // 空の場合は空白を返す（ [] ではなく下位互換のため "" を返す）
