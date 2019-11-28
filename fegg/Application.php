@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.9.6
+ * @version   1.9.7
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -549,7 +549,7 @@ class Application
             $compiledTemplate = preg_replace('/\?>(?:\r\n|\n)/m', '?> ' . "\n", $compiledTemplate);
 
             // キャッシュファイル生成
-            file_put_contents($cacheFile, trim($compiledTemplate), LOCK_EX);
+            file_put_contents($cacheFile, $compiledTemplate, LOCK_EX);
             chmod($cacheFile, 0666);
         }
 
