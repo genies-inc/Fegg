@@ -8,7 +8,7 @@
  *
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.2.0
+ * @version   1.2.1
  * @link      https://github.com/genies-inc/Fegg
  */
 
@@ -50,6 +50,7 @@ if (file_exists(FEGG_CODE_DIR . '/config/route.php')) {
     // ルートファイルの読み込み
     require_once(FEGG_CODE_DIR . '/config/route.php');
 
+    $route = $route ?? [];
     if (!preg_match("/:any|:num/", $uri) && isset($route[$uri]) && $route[$uri]) {
 
         $feggUri = $route[$uri];
