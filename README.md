@@ -36,7 +36,22 @@ Feggは、下記の３ファイルで構成されています。
 |/htdocs/.htaccess|Apache設定ファイル|
 |/htdocs/index.php|ディスパッチャ|
 
-その他
+ApacheでAliasの指定先に導入する場合
+----
+Apacheで「Alias /api/v1 /home/user/api/version1」のようにAliasの指定した先にFeggを導入する場合は、以下の修正が必要です。
+- Apacheの<Directory>には、/home/user/api/version1/htdocsのようにindex.phpのあるディレクトリ指定する
+- .htaccessの以下の部分を書き換える
+
+変更前
+```
+RewriteBase /
+```
+変更後
+```
+RewriteBase /api/v1
+```
+
+さくらインターネットのサーバーに導入する場合
 ----
 さくらインターネットのサーバーに導入する場合、.htaccessを修正する必要があります。
 - php_flag、php_valueが使えないので全てコメントアウトし、コントロールパネルからphp.iniを書き換える（書き換えなくても動作はする）
