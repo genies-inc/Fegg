@@ -8,8 +8,8 @@
  *
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.1.1
- * @link      https://github.com/genies-inc/Fegg 
+ * @version   1.2.0
+ * @link      https://github.com/genies-inc/Fegg
  */
 
 // アプリケーションが設置されている位置
@@ -22,11 +22,11 @@ if (preg_match('/(.*)index\.php/', $_SERVER['SCRIPT_NAME'], $matche)) {
 } else {
     define('FEGG_REWRITEBASE', '');
 }
-$tempPath = '';
-for ($i = 0; $i < substr_count(FEGG_REWRITEBASE, '/') + 1; $i++) {
-    $tempPath .= '/..';
-}
-$rootpath = realpath(dirname(__FILE__) . $tempPath);
+
+// ルートパス
+// index.phpの1階層上をルートとする
+// Fegg標準の配置と異なる場合はここに修正が必要
+$rootpath = realpath(dirname(__FILE__) . '/../');
 
 // システム定数定義
 define('FEGG_CODE_DIR', $rootpath . '/code');
@@ -139,11 +139,10 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
         }
 
         // 実行
-        if (method_exists($classInstance, $methodName)) {
-            call_user_func_array(array($classInstance, $methodName), $parameter);
-        }
+        call_user_func_array(array($classInstance, $methodName), $parameter);
 
     } catch (Exception $exception) {
+
         // アプリケーションで例外をCatchされなかった例外の処理
         if (isset($_SERVER['REMOTE_ADDR']) && isset($settings['developer_ip']) && in_array($_SERVER['REMOTE_ADDR'], $settings['developer_ip'])) {
             $trace = $exception->getTrace();
