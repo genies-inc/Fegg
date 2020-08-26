@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.9.7
+ * @version   1.10.0
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -51,16 +51,12 @@ class Application
         if (!isset($_SERVER['REMOTE_ADDR']) || (isset($_SERVER['REMOTE_ADDR']) && !in_array($_SERVER['REMOTE_ADDR'], $this->_settings['developer_ip']))) {
             // 本番モード
             define('FEGG_DEVELOPER', '0');
-            ini_set( 'display_errors', 0 );
+            ini_set('display_errors', 0 );
         } else {
             // 開発モード
             define('FEGG_DEVELOPER', '1');
             ini_set('display_errors', 1);
-        }
-        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-            set_error_handler(array($this, "errorHandler"), E_ALL ^E_NOTICE ^E_DEPRECATED);
-        } else {
-            set_error_handler(array($this, "errorHandler"), E_ALL ^E_NOTICE);
+            ini_set('error_reporting', E_NOTICE);
         }
 
         // 文字コード設定
@@ -584,43 +580,6 @@ class Application
 
 
     /**
-     * エラー時の例外発生
-     * @param int $errorNo
-     * @param string $errorMessage
-     * @param string $errorFile
-     * @param int $errorLine
-     */
-    function errorHandler($errorNo, $errorMessage, $errorFile, $errorLine)
-    {
-        // 開発モードでは詳細を表示してから例外を発生させる
-        if (FEGG_DEVELOPER) {
-            $error = "<p>Debug Information (Developer Only) by Application::errorHandler()</p>";
-            $error .= "Error File: $errorFile<br/>";
-            $error .= "Error Line: $errorLine<br/>";
-            $error .= "Error Message: <font color='red'>$errorMessage</font><br/>";
-
-            // エラー対象ファイルの該当行の表示
-            if(file_exists($errorFile)) {
-                $file = file_get_contents($errorFile);
-                $line = explode("\n", $file);
-                $error .= '<p></p>';
-                for ($i = $errorLine - 10; $i <= $errorLine + 10; $i++) {
-                    if ($i > 0 && isset($line[$i - 1])) {
-                        if ($i == $errorLine) { $error .= '<font color="red">'; }
-                        $error .= $i . ': ' . htmlspecialchars($line[$i - 1]) . '<br/>';
-                        if ($i == $errorLine) { $error .= '</font>'; }
-                    }
-                }
-            }
-            echo '<pre>' . $error . '</pre>';
-        }
-
-        // 例外発生
-        throw new ErrorException($errorMessage, 0, $errorNo, $errorFile, $errorLine);
-    }
-
-
-    /**
      * 表示用の変数設定と画面編集
      * @param string $template テンプレートファイル名（.tplは不要）
      */
@@ -705,57 +664,64 @@ class Application
      */
     function getClass()
     {
-        // 引数取得
-        $parameters = func_get_args();
+        try {
 
-        // ファイル名、もしくは名前空間を含むクラス名
-        $file = array_shift($parameters);
+            // 引数取得
+            $parameters = func_get_args();
 
-        // XXX : PHP 5.3以降
-        // これによってインスタンス化に失敗したクラスの名前空間をlib以下のパスに置き換えファイルを探す
-        // つまりgetClass($className)された$classNameクラスが別のクラスをrequire無しで呼び出せる
-        spl_autoload_register(function ($class) {
-            require_once $this->_namespaceToPath($class);
-        });
+            // ファイル名、もしくは名前空間を含むクラス名
+            $file = array_shift($parameters);
 
-        // 名前空間形式、もしくはlib直下はautoloadする
-        if (strpos($file, DIRECTORY_SEPARATOR) === false) {
-            // 異常時(名前空間を含むクラス名と一致するパスにファイルが存在しない場合)
-            if(!is_readable($this->_namespaceToPath($file))){
+            // XXX : PHP 5.3以降
+            // これによってインスタンス化に失敗したクラスの名前空間をlib以下のパスに置き換えファイルを探す
+            // つまりgetClass($className)された$classNameクラスが別のクラスをrequire無しで呼び出せる
+            spl_autoload_register(function ($class) {
+                require_once $this->_namespaceToPath($class);
+            });
+
+            // 名前空間形式、もしくはlib直下はautoloadする
+            if (strpos($file, DIRECTORY_SEPARATOR) === false) {
+                // 異常時(名前空間を含むクラス名と一致するパスにファイルが存在しない場合)
+                if(!is_readable($this->_namespaceToPath($file))){
+                    return null;
+                }
+
+                $reflect  = new ReflectionClass($file);
+                $instance = $reflect->newInstanceArgs($parameters);
+                return $instance;
+            }
+
+            // ここからパス形式の場合の処理
+            $segments = explode('/', $file);
+            $tempPath = '';
+            $fileName = '';
+
+            foreach ($segments as $key => $value) {
+
+                // 同一階層に同一のフォルダ名とファイル名が存在する場合はファイルを優先する
+                if (file_exists(FEGG_CODE_DIR . '/lib/' . $tempPath . ucwords($value) . '.php')) {
+                    $fileName = ucwords($value);
+                    break;
+                }
+                $tempPath .= $value . '/';
+            }
+
+            if ($fileName) {
+                require_once(FEGG_CODE_DIR . "/lib/$file.php");
+                $className = $fileName;
+                // 名前空間を指定しているのにパス形式を指定するとこの時点で$classNameは名前空間なしのものになっている
+                // 上のrequire_onceで読み込めているのに名前空間なしの別のクラスとして読み込もうとして失敗しautoloadが呼ばれてしまう
+                $reflect  = new ReflectionClass($className);
+                $instance = $reflect->newInstanceArgs($parameters);
+                return $instance;
+            } else {
                 return null;
             }
 
-            $reflect  = new ReflectionClass($file);
-            $instance = $reflect->newInstanceArgs($parameters);
-            return $instance;
-        }
-
-        // ここからパス形式の場合の処理
-        $segments = explode('/', $file);
-        $tempPath = '';
-        $fileName = '';
-
-        foreach ($segments as $key => $value) {
-
-            // 同一階層に同一のフォルダ名とファイル名が存在する場合はファイルを優先する
-            if (file_exists(FEGG_CODE_DIR . '/lib/' . $tempPath . ucwords($value) . '.php')) {
-                $fileName = ucwords($value);
-                break;
-            }
-            $tempPath .= $value . '/';
-        }
-
-        if ($fileName) {
-            require_once(FEGG_CODE_DIR . "/lib/$file.php");
-            $className = $fileName;
-            // 名前空間を指定しているのにパス形式を指定するとこの時点で$classNameは名前空間なしのものになっている
-            // 上のrequire_onceで読み込めているのに名前空間なしの別のクラスとして読み込もうとして失敗しautoloadが呼ばれてしまう
-            $reflect  = new ReflectionClass($className);
-            $instance = $reflect->newInstanceArgs($parameters);
-            return $instance;
-        } else {
+        } catch(Exception $e) {
             return null;
         }
+
     }
 
 
@@ -987,7 +953,7 @@ class Application
                     $requestData = $param[$name];
                 }
             }
-                        
+
         } else {
 
             // 全データを取得
@@ -1001,7 +967,7 @@ class Application
                 parse_str(file_get_contents('php://input'), $param);
                 foreach ($param as $key => $value) { $requestData[$key] = $value; }
             }
-                        
+
         }
 
         // 空の場合は空白を返す（ [] ではなく下位互換のため "" を返す）
@@ -1009,86 +975,6 @@ class Application
 
         // 文字コード、シングル・ダブルクォートを変換
         return $this->_convertRequestData($requestData);
-    }
-
-
-    /**
-     * メール送信
-     * テキスト、HTML、ファイル添付に対応したメール送信
-     * オプションに指定した連想配列のキーで以下の設定が可能
-     * 　'from_name' : 送信者名
-     * 　'to_name' : 宛先者名
-     * 　'html' : trueで本文をHTMLとして送信
-     * 　'file' : 連想配列で指定（file => 'ファイルパス', 'name' => 'ファイル名'）
-     * 　　例）$options['file'] => array(0 => array('file' => 'path-to-file', 'name' => 'an attached file'), 1 => array(...));
-     *
-     * @param  string $to 送信先メールアドレス
-     * @param  string $subject タイトル
-     * @param  string $message 本文 / HTML
-     * @param  string $from 送信元メールアドレス
-     * @param  array $options オプション
-     * @return int mail()関数の返値
-     */
-    function mail($to, $subject, $message, $from, $options = array())
-    {
-        $boundary = 'boundary_' . md5(rand());
-        $bounceto = isset($options['bounceto']) ? $options['bounceto'] : $from;
-
-        // mimeエンコード用無名関数
-        $mime = function($text, $length = 99999) {
-            $index = 0;
-            $encoded = '';
-            while ($index * $length <= mb_strlen($text)) {
-                $encoded .= $encoded ? "\n" : '';
-                $encoded .= "=?ISO-2022-JP?B?" . base64_encode(mb_convert_encoding(mb_substr($text, $index * $length, $length), 'ISO-2022-JP', FEGG_DEFAULT_CHARACTER_CODE)) . "?=";
-                $index = $index + 1;
-            }
-            return $encoded;
-        };
-
-        // 宛先
-        $to = isset($options['to_name']) ? $mime($options['to_name']) . " <{$to}>" : $to;
-        $from = isset($options['from_name']) ? $mime($options['from_name']) . " <{$from}>" : $from;
-
-        // ヘッダー
-        $header = '';
-        $header .= "From: {$from}\n";
-        $header .= "MIME-Version: 1.0\n";
-        $header .= "Content-Type: Multipart/Mixed; boundary=\"{$boundary}\"\n";
-        $header .= "Reply-To: {$bounceto}\n";
-
-        // タイトル
-        $subject = $mime($subject, 24);
-
-        // 本文
-        $body = '';
-        $body .= "--{$boundary}\n";
-        if (!isset($options['html']) || $options['html'] != true) {
-            // テキスト
-            $body .= "Content-Type: text/plain; charset=ISO-2022-JP; Content-Transfer-Encoding: 7bit\n\n";
-            $body .= mb_convert_encoding($message, 'ISO-2022-JP', FEGG_DEFAULT_CHARACTER_CODE) . "\n\n";
-        } else {
-            // HTML
-            $body .= "Content-Type: text/html; charset=ISO-2022-JP; Content-Transfer-Encoding: quoted-printable\n\n";
-            $body .= mb_convert_encoding(quoted_printable_decode($message), FEGG_DEFAULT_CHARACTER_CODE, "ISO-2022-JP") . "\n\n";
-        }
-
-        // 添付ファイル
-        if (isset($options['file']) && is_array($options['file'])) {
-            foreach ($options['file'] as $key => $value) {
-                if (file_exists($value['file'])) {
-                    $body .= "--" . $boundary . "\n";
-                    $name = $mime(isset($value['name']) ? $value['name'] : basename($value['file']));
-                    $body .= "Content-Type: application/octet-stream ; name=\"{$name}\"\n";
-                    $body .= "Content-Disposition: attachment; filename=\"{$name}\"\n";
-                    $body .= "Content-Transfer-Encoding: base64\n\n";
-                    $body .= chunk_split(base64_encode(file_get_contents($value['file'])))."\n";
-                }
-            }
-        }
-
-        // メール送信
-        return mail($to, $subject, $body, $header);
     }
 
 
@@ -1278,26 +1164,111 @@ class Application
             return false;
         }
     }
+
+
+    /**
+     * メール送信
+     * テキスト、HTML、ファイル添付に対応したメール送信
+     * オプションに指定した連想配列のキーで以下の設定が可能
+     *   'from_name' : 送信者名
+     *   'to_name' : 宛先者名
+     *   'html' : trueで本文をHTMLとして送信
+     *   'file' : 連想配列で指定（file => 'ファイルパス', 'name' => 'ファイル名'）
+     *     例）$options['file'] => array(0 => array('file' => 'path-to-file', 'name' => 'an attached file'), 1 => array(...));
+     *
+     * @param  string $to 送信先メールアドレス
+     * @param  string $subject タイトル
+     * @param  string $message 本文 / HTML
+     * @param  string $from 送信元メールアドレス
+     * @param  array $options オプション
+     * @return int mail()関数の返値
+     */
+    function mail($to, $subject, $message, $from, $options = array())
+    {
+        $boundary = 'boundary_' . md5(rand());
+        $bounceto = isset($options['bounceto']) ? $options['bounceto'] : $from;
+
+        // mimeエンコード用無名関数
+        $mime = function($text, $length = 99999) {
+            $index = 0;
+            $encoded = '';
+            while ($index * $length <= mb_strlen($text)) {
+                $encoded .= $encoded ? "\n" : '';
+                $encoded .= "=?ISO-2022-JP?B?" . base64_encode(mb_convert_encoding(mb_substr($text, $index * $length, $length), 'ISO-2022-JP', FEGG_DEFAULT_CHARACTER_CODE)) . "?=";
+                $index = $index + 1;
+            }
+            return $encoded;
+        };
+
+        // 宛先
+        $to = isset($options['to_name']) ? $mime($options['to_name']) . " <{$to}>" : $to;
+        $from = isset($options['from_name']) ? $mime($options['from_name']) . " <{$from}>" : $from;
+
+        // ヘッダー
+        $header = '';
+        $header .= "From: {$from}\n";
+        $header .= "MIME-Version: 1.0\n";
+        $header .= "Content-Type: Multipart/Mixed; boundary=\"{$boundary}\"\n";
+        $header .= "Reply-To: {$bounceto}\n";
+
+        // タイトル
+        $subject = $mime($subject, 24);
+
+        // 本文
+        $body = '';
+        $body .= "--{$boundary}\n";
+        if (!isset($options['html']) || $options['html'] != true) {
+            // テキスト
+            $body .= "Content-Type: text/plain; charset=ISO-2022-JP; Content-Transfer-Encoding: 7bit\n\n";
+            $body .= mb_convert_encoding($message, 'ISO-2022-JP', FEGG_DEFAULT_CHARACTER_CODE) . "\n\n";
+        } else {
+            // HTML
+            $body .= "Content-Type: text/html; charset=ISO-2022-JP; Content-Transfer-Encoding: quoted-printable\n\n";
+            $body .= mb_convert_encoding(quoted_printable_decode($message), FEGG_DEFAULT_CHARACTER_CODE, "ISO-2022-JP") . "\n\n";
+        }
+
+        // 添付ファイル
+        if (isset($options['file']) && is_array($options['file'])) {
+            foreach ($options['file'] as $key => $value) {
+                if (file_exists($value['file'])) {
+                    $body .= "--" . $boundary . "\n";
+                    $name = $mime(isset($value['name']) ? $value['name'] : basename($value['file']));
+                    $body .= "Content-Type: application/octet-stream ; name=\"{$name}\"\n";
+                    $body .= "Content-Disposition: attachment; filename=\"{$name}\"\n";
+                    $body .= "Content-Transfer-Encoding: base64\n\n";
+                    $body .= chunk_split(base64_encode(file_get_contents($value['file'])))."\n";
+                }
+            }
+        }
+
+        // メール送信
+        return mail($to, $subject, $body, $header);
+    }
+
 }
 
 
 /**
- * アプリケーションの致命的エラー処理
+ * アプリケーションの終了処理
+ * 致命的なエラーが発生していた場合はその内容を開発者に通知
  */
 function shutdownHandler()
 {
     $e = error_get_last();
+    $errorType = $e['type'] ?? '';
     $errorLine = $e['line'] ?? '';
     $errorMessage = $e['message'] ?? '';
     $errorFile = $e['file'] ?? '';
 
-    if (defined('FEGG_DEVELOPER') && FEGG_DEVELOPER && $errorLine) {
+    if ($errorLine) {
+
+        // エラー基本情報
         $error = "<p>Debug Information (Developer Only) by Application::shutdownHandler()</p>";
         $error .= "Error File: $errorFile<br/>";
         $error .= "Error Line: $errorLine<br/>";
         $error .= "Error Message: <font color='red'>$errorMessage</font><br/>";
 
-        // エラー対象ファイルの該当行の表示
+        // 対象ファイルの該当行付近を編集
         if(file_exists($errorFile)) {
             $file = file_get_contents($errorFile);
             $line = explode("\n", $file);
@@ -1310,7 +1281,25 @@ function shutdownHandler()
                 }
             }
         }
-        echo '<pre>' . $error . '</pre>';
+
+        if (defined('FEGG_DEVELOPER') && FEGG_DEVELOPER) {
+
+            // 開発モードの場合は画面にエラーを表示
+            echo '<pre>' . $error . '</pre>';
+
+        } else {
+
+            // 本番モードの場合はメールで送信
+            if ($app = FEGG_getInstance()) {
+                $to = $app->getSetting('error_mail');
+                $from = $_SERVER['SERVER_ADMIN'] ?? 'admin@' . gethostname();
+                if ($to && $from) {
+                    $app->mail($to, 'Fegg Error Notification - ' . $app->getDatetime('Y/m/d H:i'), $error, $from, ['html' => true]);
+                }
+            }
+
+        }
     }
+
 }
 register_shutdown_function('shutdownHandler');

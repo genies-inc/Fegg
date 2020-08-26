@@ -63,4 +63,5 @@ $settings['basic_auth_scope'] = 0;
 $settings['basic_auth_user'] = '';
 $settings['basic_auth_password'] = '';
 
-/* End of file settings.php */
+// エラーログ送信アドレス
+$settings['error_mail'] = '';
