@@ -129,8 +129,8 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
 
     try {
 
-		// autoloadを使用する場合はここに記述
-        require_once FEGG_CODE_DIR . "/../vendor/autoload.php";
+        // autoloadを使用する場合はここに記述
+        // require_once FEGG_CODE_DIR . "/../vendor/autoload.php";
 
         // インスタンス生成
         require(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php');
