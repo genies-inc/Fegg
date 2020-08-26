@@ -8,7 +8,7 @@
  *
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.2.1
+ * @version   1.2.2
  * @link      https://github.com/genies-inc/Fegg
  */
 
@@ -129,6 +129,9 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
 
     try {
 
+        // Autoloaderを使用する場合はここに記述
+        // require_once FEGG_CODE_DIR . "/../vendor/autoload.php";
+
         // インスタンス生成
         require(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php');
         $className = $fileName;
@@ -140,7 +143,9 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
         }
 
         // 実行
-        call_user_func_array(array($classInstance, $methodName), $parameter);
+        if (method_exists($classInstance, $methodName)) {
+            call_user_func_array(array($classInstance, $methodName), $parameter);
+        }
 
     } catch (Exception $exception) {
 
