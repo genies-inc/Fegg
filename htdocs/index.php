@@ -8,7 +8,7 @@
  *
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.2.2
+ * @version   1.2.3
  * @link      https://github.com/genies-inc/Fegg
  */
 
@@ -129,8 +129,8 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
 
     try {
 
-        // Autoloaderを使用する場合はここに記述
-        // require_once FEGG_CODE_DIR . "/../vendor/autoload.php";
+		// autoloadを使用する場合はここに記述
+        require_once FEGG_CODE_DIR . "/../vendor/autoload.php";
 
         // インスタンス生成
         require(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php');
@@ -147,28 +147,10 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
             call_user_func_array(array($classInstance, $methodName), $parameter);
         }
 
-    } catch (Exception $exception) {
-
-        // アプリケーションで例外をCatchされなかった例外の処理
-        if (isset($_SERVER['REMOTE_ADDR']) && isset($settings['developer_ip']) && in_array($_SERVER['REMOTE_ADDR'], $settings['developer_ip'])) {
-            $trace = $exception->getTrace();
-            echo '<pre>';
-            foreach ($trace as $key => $value) {
-                switch ($value['function']) {
-                    case 'errorHandler':
-                        echo '<hr>関数内で定義された変数<br>';
-                        print_r($trace[0]['args'][4]);
-                        break;
-
-                    case 'call_user_func_array':
-                        echo '<hr>$this->page変数<br>';
-                        print_r($value['args'][0][0]->page);
-                        break;
-                }
-            }
-            echo '</pre>';
-        }
-        exit;
+    } catch (ParseError $e) {
+        throw new ErrorException('parse error.', $e->getCode(), E_PARSE, $e->getFile(), $e->getLine());
+    } catch (Error $e) {
+        throw new ErrorException($e->getMessage(), $e->getCode(), E_ERROR, $e->getFile(), $e->getLine());
     }
 
 } else {
@@ -192,3 +174,4 @@ function FEGG_getInstance() {
     $instance = $classInstance->getInstance();
     return $instance;
 }
+
