@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.10.0
+ * @version   1.10.1
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -1087,6 +1087,16 @@ class Application
     function setSiteinfo($id, $value)
     {
         $this->_site[$id] = $value;
+    }
+
+
+    /**
+     * テンプレートのディレクトリを設定
+     * @param string $dir テンプレートディレクトリ
+     */
+    function setTemplateDirectory($dir)
+    {
+        $this->_settings['template_dir'] = $dir;
     }
 
 
