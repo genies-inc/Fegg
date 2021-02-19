@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.10.1
+ * @version   1.10.2
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -680,7 +680,7 @@ class Application
             });
 
             // 名前空間形式、もしくはlib直下はautoloadする
-            if (strpos($file, DIRECTORY_SEPARATOR) === false) {
+            if (strpos($file, '/') === false) {
                 // 異常時(名前空間を含むクラス名と一致するパスにファイルが存在しない場合)
                 if(!is_readable($this->_namespaceToPath($file))){
                     return null;

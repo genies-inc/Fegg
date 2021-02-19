@@ -1,6 +1,8 @@
 修正履歴
 ====
 /fegg/Application.php
+- 1.10.2
+  2021/02/19 Windows環境での動作に対応
 - 1.10.1
   2020/10/19 setTemplateDirectory() を追加
 - 1.10.0
