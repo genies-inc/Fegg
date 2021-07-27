@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.10.2
+ * @version   1.10.3
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -406,7 +406,7 @@ class Application
                 '/\{\{\s*if\s+([^\{]+)\s*\}\}/i' => '<?php if ($1) { ?>',
                 '/\{\{\s*else\s*if\s*([^\{]+)\s*\}\}/i' => '<?php } else if ($1) { ?>',
                 '/\{\{\s*else\s*\}\}/' => '<?php } else { ?>',
-                '/\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.]+)\s*to\s*([$]*[\w\.]+)\s*\}\}/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
+                '/\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.-]+)\s*to\s*([$]*[\w\.-]+)\s*\}\}/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
                 '/\{\{\s*end\s*\}\}/i' => '<?php } ?>',
                 '/\{\{\s*foreach\s+\$((?!.*foreach).+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; $$1 = isset($$1) ? (array)$$1 : array(); foreach ($$1 as $$2 => $$3) { ?>',
                 '/\{\{\s*end foreach\s*\}\}/i' => '<?php $foreachIndex++; } ?>',
