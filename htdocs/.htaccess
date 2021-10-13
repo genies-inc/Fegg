@@ -13,12 +13,7 @@ RewriteCond $1 !^(index\.php|testindex\.php|.+\.htm|.+\.html|.+\.shtml|.+\.js$|.
 RewriteRule ^(.+)$ index.php/$1/ [L]
 
 # PHP
-php_flag magic_quotes_gpc off
-php_flag magic_quotes_runtime off
-php_flag magic_quotes_sybase off
 php_flag register_argc_argv off
-php_flag registar_globals off
-php_flag register_long_arrays off
 php_flag mbstring.encoding_translation Off
 
 php_value default_charset "none"
