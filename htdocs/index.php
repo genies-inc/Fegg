@@ -8,7 +8,7 @@
  *
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.2.3
+ * @version   1.3.0
  * @link      https://github.com/genies-inc/Fegg
  */
 
@@ -88,7 +88,7 @@ $tempPath = '';
 $fileName = '';
 $className = '';
 $methodName = '';
-$parameter = array();
+$parameter = [];
 
 foreach ($uriSegments as $key => $value) {
 
@@ -139,7 +139,7 @@ if (file_exists(FEGG_CODE_DIR . '/application/' . $tempPath . $fileName . '.php'
 
         // 初期化
         if (method_exists($classInstance, '__init')) {
-            call_user_func_array(array($classInstance, '__init'), array());
+            call_user_func_array(array($classInstance, '__init'), []);
         }
 
         // 実行
