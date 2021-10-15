@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.10.3
+ * @version   1.11.0
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -276,7 +276,7 @@ class Application
      * @param array $assignedValue 表示データ
      * @return テンプレートの実行結果を画面出力
      */
-    function displayTemplate($template, $assignedValue = array())
+    function displayTemplate($template, $assignedValue = [])
     {
         // カレントディレクトリ指定があり、テンプレートIDの頭が「/」じゃない場合は相対パス
         if( isset( $this->_settings['current_template_dir'] ) && ! empty( $this->_settings['current_template_dir'] ) && substr($template, 0, 1) !== '/' ) {
@@ -284,7 +284,7 @@ class Application
         }
         // 相対パスの指定を削除する
         if (is_numeric(strpos($template, '.'))) {
-            $stack = array();
+            $stack = [];
             foreach( explode( '/', $template ) as $path ) {
                 if( $path === '..' ) {
                     if( count( $stack ) ) {
@@ -343,7 +343,7 @@ class Application
                     }
                     $parentTemplate = file_get_contents($this->_settings['template_dir']  . $languageDirectory . '/' . $parentTemplate . '.'.$this->_settings['template_ext']);
 
-                    $tempPattern = array();
+                    $tempPattern = [];
                     if (preg_match_all('/\s*{\{\s*section\s+(\w+)\s*\}\}\s*/', $parentTemplate, $parentParts)) {
                         foreach ($parentParts[1] as $key => $value) {
                             $tempPattern['/ *\{\{\s*end\s+section\s+(' . $value . ')\s*\}\}\s*/'] = '<?php }} ?>';
@@ -408,7 +408,7 @@ class Application
                 '/\{\{\s*else\s*\}\}/' => '<?php } else { ?>',
                 '/\{\{\s*loop\s+\$(\w+)\s*=\s*([$]*[\w\.-]+)\s*to\s*([$]*[\w\.-]+)\s*\}\}/i' => '<?php for ($$1 = $2; $$1 <= $3; $$1++) { ?>',
                 '/\{\{\s*end\s*\}\}/i' => '<?php } ?>',
-                '/\{\{\s*foreach\s+\$((?!.*foreach).+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; $$1 = isset($$1) ? (array)$$1 : array(); foreach ($$1 as $$2 => $$3) { ?>',
+                '/\{\{\s*foreach\s+\$((?!.*foreach).+)\s+as\s+\$(\w+)\s*=>\s*\$(\w+)\s*\}\}/i' => '<?php $foreachIndex = 0; $$1 = isset($$1) ? (array)$$1 : []; foreach ($$1 as $$2 => $$3) { ?>',
                 '/\{\{\s*end foreach\s*\}\}/i' => '<?php $foreachIndex++; } ?>',
                 '/\{\{\s*hidden\s*\}\}/i' => '<?php if (isset($hiddenForTemplate)) { foreach ($hiddenForTemplate as $fegg_hiddens_key => $fegg_hiddens_value) { echo \'<input type="hidden" name="\' . $fegg_hiddens_key . \'" value="\' . $fegg_hiddens_value . \'">\'; }} ?>',
                 '/\{\{\s*base\s*\}\}/i' => '<?php echo FEGG_REWRITEBASE; ?>',
@@ -418,7 +418,7 @@ class Application
             $compiledTemplate = preg_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // call をPHPに変換
-            $pattern = array();
+            $pattern = [];
             if (preg_match_all('/\{\{\s*call\s+\'[\/]*([\w\/]+)\'\s*\}\}/i', $compiledTemplate, $matches)) {
                 $tempPath = '';
                 $nameSpace = '';
@@ -450,13 +450,13 @@ class Application
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // checked, selected をPHPに変換
-            $pattern = array();
+            $pattern = [];
             if (preg_match_all('/\{\{\s*(checked|selected)\s+(key\s*=\s*[\(\)\$\w\.\[\]\_\'\s\"\-]+\s+value\s*=\s*[\$\w\.\[\]\_\'\s\"\-]+)(\s+typecheck=[\w]+)*\s*\}\}/i', $compiledTemplate, $matches)) {
                 foreach ($matches[2] as $key => $paramater) {
                     $parameter = preg_replace('/\s+/', ' ', trim($paramater));
                     $parameter = preg_replace('/\s+value=/', '|value=', trim($paramater));
                     $elements = explode("|", $parameter);
-                    $tempElements = array();
+                    $tempElements = [];
                     foreach ($elements as $element) {
                         list($id, $value) = explode("=", $element);
                         $tempElements[trim($id)] = trim($value);
@@ -479,11 +479,11 @@ class Application
             $compiledTemplate = str_replace(array_keys($pattern), array_values($pattern), $compiledTemplate);
 
             // options をPHPに変換
-            $pattern = array();
+            $pattern = [];
             if (preg_match_all('/\{\{\s*options\s+([^\}]+)\s*\}\}/i', $compiledTemplate, $matches)) {
                 foreach ($matches[1] as $key => $paramater) {
                     $elements = explode(" ", trim($paramater));
-                    $tempElements = array();
+                    $tempElements = [];
                     foreach ($elements as $element) { ;
                         list($id, $value) = explode("=", $element);
                         $tempElements[trim($id)] = trim($value);
@@ -526,7 +526,7 @@ class Application
                 return '$assignedValue' . $element;
             };
 
-            $pattern = array();
+            $pattern = [];
             preg_match_all('/\<\?php\s+((?!\?\>).)+\s+\?\>/i', $compiledTemplate, $matches);
 
             foreach ($matches[0] as $key => $value) {
@@ -639,7 +639,7 @@ class Application
      * @param array $assignedValue 表示データ
      * @return string テンプレートの出力結果
      */
-    function fetchTemplate($templateFile, $assignedValue = array())
+    function fetchTemplate($templateFile, $assignedValue = [])
     {
         // 直接コールされている場合はBasic認証の対象外に
         $this->_basicAuthFlag = $this->_basicAuthFlag != '' ? $this->_basicAuthFlag : 'false';
@@ -672,7 +672,6 @@ class Application
             // ファイル名、もしくは名前空間を含むクラス名
             $file = array_shift($parameters);
 
-            // XXX : PHP 5.3以降
             // これによってインスタンス化に失敗したクラスの名前空間をlib以下のパスに置き換えファイルを探す
             // つまりgetClass($className)された$classNameクラスが別のクラスをrequire無しで呼び出せる
             spl_autoload_register(function ($class) {
@@ -1001,11 +1000,7 @@ class Application
         $expire = $expire > 0 ? time() + $expire : time() + 604800;
 
         // Cookieに書き出し
-        if (version_compare(PHP_VERSION, '5.2.0') >= 0) {
-            setcookie($name, $value, $expire, $path, '', false, false);
-        } else {
-            setcookie($name, $value, $expire, $path, '', false);
-        }
+        setcookie($name, $value, $expire, $path, '', false, false);
     }
 
 
@@ -1146,7 +1141,7 @@ class Application
         if ($name) {
             unset($_SESSION[$name]);
         } else {
-          $_SESSION = array();
+          $_SESSION = [];
           session_destroy();
         }
     }
@@ -1193,7 +1188,7 @@ class Application
      * @param  array $options オプション
      * @return int mail()関数の返値
      */
-    function mail($to, $subject, $message, $from, $options = array())
+    function mail($to, $subject, $message, $from, $options = [])
     {
         $boundary = 'boundary_' . md5(rand());
         $bounceto = isset($options['bounceto']) ? $options['bounceto'] : $from;
