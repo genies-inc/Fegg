@@ -9,7 +9,7 @@
  * @access    public
  * @author    Kazuyuki Saka
  * @copyright 2005-2019 Genies Inc.
- * @version   1.11.0
+ * @version   1.11.1
  * @link      https://github.com/genies-inc/Fegg
  */
 class Application
@@ -972,7 +972,8 @@ class Application
         // 空の場合は空白を返す（ [] ではなく下位互換のため "" を返す）
         $requestData = !$this->empty($requestData) ? $requestData : "";
 
-        // 文字コード、シングル・ダブルクォートを変換
+        // 文字コードを変換
+        // シングルクォートなどそのまま返されるため直接SQL文に使用する場合（非推奨）は個々でエスケープを行う
         return $this->_convertRequestData($requestData);
     }
 
